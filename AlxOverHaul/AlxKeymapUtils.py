@@ -2,7 +2,7 @@ import bpy
 
 from .UnlockedTools import AlxUnlockedObjectModes
 
-from . import AlxPreferences
+from . import Alx_preferences
 from . import AlxAlexandriaGeneralPanel
 
 AlxAddonKeymaps = []
@@ -86,19 +86,19 @@ def AlxKeymapRegister(keymap_call_type="", config_space_name="", space_type="EMP
 
 
 def AlxCreateKeymaps():
-    if (AlxPreferences.AlxGetPreferences().View3d_Pan_Use_Shift_GRLess == True):
+    if (Alx_preferences.AlxGetPreferences().View3d_Pan_Use_Shift_GRLess == True):
         AlxEditKeymaps(KeyconfigSource="Blender", ConfigSpaceName="3D View", ItemidName="view3d.move", MapType="KEYBOARD", Key="GRLESS", UseShift=True, Active=True)
-    if (AlxPreferences.AlxGetPreferences().View3d_Pan_Use_Shift_GRLess == False):
+    if (Alx_preferences.AlxGetPreferences().View3d_Pan_Use_Shift_GRLess == False):
         AlxEditKeymaps(KeyconfigSource="Blender", ConfigSpaceName="3D View", ItemidName="view3d.move", MapType="MOUSE", Key="MIDDLEMOUSE", UseShift=True, Active=True)
 
-    if (AlxPreferences.AlxGetPreferences().View3d_Rotate_Use_GRLess == True):
+    if (Alx_preferences.AlxGetPreferences().View3d_Rotate_Use_GRLess == True):
         AlxEditKeymaps(KeyconfigSource="Blender", ConfigSpaceName="3D View", ItemidName="view3d.rotate", MapType="KEYBOARD", Key="GRLESS", Active=True)
-    if (AlxPreferences.AlxGetPreferences().View3d_Rotate_Use_GRLess == False):
+    if (Alx_preferences.AlxGetPreferences().View3d_Rotate_Use_GRLess == False):
         AlxEditKeymaps(KeyconfigSource="Blender", ConfigSpaceName="3D View", ItemidName="view3d.rotate", MapType="MOUSE", Key="MIDDLEMOUSE", Active=True)
 
-    if (AlxPreferences.AlxGetPreferences().View3d_Zoom_Use_GRLess == True):
+    if (Alx_preferences.AlxGetPreferences().View3d_Zoom_Use_GRLess == True):
         AlxEditKeymaps(KeyconfigSource="Blender", ConfigSpaceName="3D View", ItemidName="view3d.zoom", MapType="KEYBOARD", Key="GRLESS", UseCtrl=True, Active=True)
-    if (AlxPreferences.AlxGetPreferences() .View3d_Zoom_Use_GRLess == False):
+    if (Alx_preferences.AlxGetPreferences() .View3d_Zoom_Use_GRLess == False):
         AlxEditKeymaps(KeyconfigSource="Blender", ConfigSpaceName="3D View", ItemidName="view3d.zoom", MapType="MOUSE", Key="MIDDLEMOUSE", UseCtrl=True, Active=True)
 
     AlxKeymapRegister(keymap_call_type="DEFAULT", config_space_name="Window", region_type="WINDOW", addon_class="wm.window_fullscreen_toggle", key="F11", use_alt=True, trigger_type="CLICK")

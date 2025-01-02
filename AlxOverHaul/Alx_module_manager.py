@@ -27,7 +27,7 @@ class Alx_Module_Manager():
     __folder_blacklist: set[str] = set()
     __folder_blacklist.update({"__pycache__"})
     __file_blacklist: set[str] = set()
-    __file_blacklist.update({"__init__.py"})
+    __file_blacklist.update({"__init__.py", "Alx_Module_Manager"})
 
     __module_data_path: str
     __module_icons_path: str
@@ -39,12 +39,13 @@ class Alx_Module_Manager():
         self.__module_data_path = f"{self.__module_path}\\module_data"
         self.__module_icons_path = f"{self.__module_data_path}\\icons"
 
-    def developer_register_modules(self, mute: Optional[bool] = True):
+    def developer_load_modules(self):
         self.__module_folders = self.__gather_addon_folders(self.__module_path, self.__folder_blacklist)
         self.__module_files = self.__gather_addon_files(self.__module_folders, self.__file_blacklist)
         self.__execute_locals_update(self.__module_path, self.__module_files)
         self.__module_classes = self.__gather_classes_from_files(self.__module_files)
 
+    def developer_register_modules(self, mute: Optional[bool] = True):
         self.__register_addon_classes(self.__module_classes, mute=mute)
 
     def developer_unregister_modules(self):
@@ -134,15 +135,18 @@ class Alx_Module_Manager():
 
     def __execute_locals_update(self, path: str, addon_files: dict[str, Path]):
         for file_name in addon_files.keys():
+            if (file_name != "Alx_Module_Manager"):
+                try:
+                    if (file_name not in self.__init_globals):
+                        relative_path = str(addon_files.get(file_name).relative_to(path)).replace(os_separator, ".")
 
-            if (file_name not in self.__init_globals):
-                relative_path = str(addon_files.get(file_name).relative_to(path)).replace(os_separator, ".")
-
-                import_line = f"from . {relative_path if relative_path != '.' else ''} import {file_name}"
-                exec(import_line, self.__init_globals)
-            else:
-                reload_line = f"{file_name} = importlib.reload({file_name})"
-                exec(reload_line, self.__init_globals)
+                        import_line = f"from . {relative_path if relative_path != '.' else ''} import {file_name}"
+                        exec(import_line, self.__init_globals)
+                    else:
+                        reload_line = f"{file_name} = importlib.reload({file_name})"
+                        exec(reload_line, self.__init_globals)
+                except Exception as error:
+                    print(error)
 
     def __register_addon_classes(self, addon_classes: list[object], mute: Optional[bool] = True):
         for addon_class in addon_classes:

@@ -1,31 +1,44 @@
+import importlib
+from .Alx_Module_Manager import (
+    Alx_Module_Manager
+)
+
+
+from .modules.addon_updater_system.addon_updater import (
+    addon_name,
+    Alx_Addon_Updater
+)
+
+
 from . import AlxHandlers
 from .UnlockedTools import AlxUnlockedModeling
 from . import AlxAlexandriaGeneralPanel
 from . import AlxProperties
-import importlib
-from .Alx_module_manager import (
-    Alx_Module_Manager
-)
+
 
 import bpy
 
 
 bl_info = {
     "name": "AlxOverHaul",
-    "author": "Valeria Bosco[Valy Arhal]",
+    "author": "Valerie Bosco[Valy Arhal]",
     "description": "",
     "warning": "[Heavly Under Development] And Subject To Substantial Changes",
-    "version": (0, 7, 0),
+    "version": (0, 7, 1),
     "blender": (4, 0, 0),
     "category": "3D View",
     "location": "[Ctrl Alt A] General Menu, [Shift Alt S] Pivot Menu, [Tab] Auto Mode Pie Menu",
-    "doc_url": "https://github.com/Valery-AA/AlxOverHaul/wiki",
-    "tracker_url": "https://github.com/Valery-AA/AlxOverHaul/issues",
+    "doc_url": "https://github.com/Valerie-Bosco/AlxOverHaul/wiki",
+    "tracker_url": "https://github.com/Valerie-Bosco/AlxOverHaul/issues",
 }
 
 
 module_loader = Alx_Module_Manager(__path__, globals())
-module_loader.developer_blacklist_folder({"addon_updater_system"})
+module_loader.developer_load_modules()
+
+addon_name = bl_info["name"]
+addon_updater = Alx_Addon_Updater(__path__[0], bl_info, "Github", "Valerie-Bosco", "AlxOverHaul", "https://github.com/Valerie-Bosco/AlxOverHaul/releases")
+# addon_updater.set_version_target(minimum_version=(0, 7, 0))
 
 
 def RegisterProperties():
@@ -110,7 +123,6 @@ def UnRegisterHandlers():
 
 def register():
     module_loader.developer_register_modules(mute=True)
-    module_loader.developer_register_module_icons()
 
     RegisterProperties()
     RegisterHandlers()
@@ -120,7 +132,6 @@ def register():
 
 def unregister():
     module_loader.developer_unregister_modules()
-    module_loader.developer_unregister_module_icons()
 
     UnRegisterProperties()
     UnRegisterHandlers()

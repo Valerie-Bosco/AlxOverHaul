@@ -1,12 +1,12 @@
 import rna_keymap_ui
 import bpy
 
-# from .AddonUpdater.addon_updater_ops import make_annotations, update_settings_ui
+from .modules.addon_updater_system.addon_updater import update_settings_ui
 
 from . import AlxKeymapUtils
+
+
 # @make_annotations
-
-
 class AlxOverHaul_AddonPreferences(bpy.types.AddonPreferences):
     """"""
 
@@ -19,7 +19,7 @@ class AlxOverHaul_AddonPreferences(bpy.types.AddonPreferences):
                                                        ("SETTINGS", "settings", "", "PREFERENCES", 1 << 2)
                                                   ])  # type:ignore
 
-    # auto_check_update: bpy.props.BoolProperty(name="Auto-check for Update", description="If enabled, auto-check for updates using an interval", default=False)  # type:ignore
+    auto_check_update: bpy.props.BoolProperty(name="Auto-check for Update", description="If enabled, auto-check for updates using an interval", default=False)  # type:ignore
 
     # updater_interval_months: bpy.props.IntProperty(name='Months', description="Number of months between checking for updates", default=0, min=0)  # type:ignore
     # updater_interval_days: bpy.props.IntProperty(name='Days', description="Number of days between checking for updates", default=7, min=0, max=31)  # type:ignore
@@ -53,8 +53,6 @@ class AlxOverHaul_AddonPreferences(bpy.types.AddonPreferences):
         preference_box = self.layout
         preference_box.grid_flow(row_major=True, align=True).prop(self, "addon_preference_tabs", expand=True)
 
-        # update_settings_ui(self, context)
-
         keymap_configs = context.window_manager.keyconfigs.user
 
         if (self.addon_preference_tabs == "KEYBINDS"):
@@ -68,8 +66,9 @@ class AlxOverHaul_AddonPreferences(bpy.types.AddonPreferences):
             for keymap, keymap_item in AlxKeymapUtils.AlxAddonKeymaps:
                 rna_keymap_ui.draw_kmi([], keymap_configs, keymap, keymap_item, keybinds_column, 0)
 
-        # if (self.addon_preference_tabs == "SETTINGS"):
-        # update_settings_ui(self, context)
+        if (self.addon_preference_tabs == "SETTINGS"):
+            addon_updater_column = preference_box.column()
+            update_settings_ui(context, addon_updater_column)
 
 
 def AlxGetPreferences():
