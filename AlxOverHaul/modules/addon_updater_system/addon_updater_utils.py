@@ -4,7 +4,7 @@ import bpy
 def get_addon_preferences(context: bpy.types.Context = bpy.context, addon_name: str = ""):
     """Intermediate method for pre and post blender 2.8 grabbing preferences"""
 
-    addon = context.preferences.addons.get(addon_name, None)
+    addon = context.preferences.addons.get(addon_name)
     if (addon is not None):
         return addon.preferences
     else:

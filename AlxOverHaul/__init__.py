@@ -1,30 +1,18 @@
 import importlib
-from .Alx_Module_Manager import (
-    Alx_Module_Manager
-)
-
-
-from .modules.addon_updater_system.addon_updater import (
-    addon_name,
-    Alx_Addon_Updater
-)
-
-
-from . import AlxHandlers
-from .UnlockedTools import AlxUnlockedModeling
-from . import AlxAlexandriaGeneralPanel
-from . import AlxProperties
-
 
 import bpy
 
+from . import AlxAlexandriaGeneralPanel, AlxHandlers, AlxProperties
+from .Alx_Module_Manager import Alx_Module_Manager
+from .modules.addon_updater_system.addon_updater import Alx_Addon_Updater
+from .UnlockedTools import AlxUnlockedModeling
 
 bl_info = {
     "name": "AlxOverHaul",
     "author": "Valerie Bosco[Valy Arhal]",
     "description": "",
     "warning": "[Heavly Under Development] And Subject To Substantial Changes",
-    "version": (0, 7, 1),
+    "version": (0, 7, 2),
     "blender": (4, 0, 0),
     "category": "3D View",
     "location": "[Ctrl Alt A] General Menu, [Shift Alt S] Pivot Menu, [Tab] Auto Mode Pie Menu",
@@ -122,7 +110,9 @@ def UnRegisterHandlers():
 
 
 def register():
+    module_loader.developer_load_modules
     module_loader.developer_register_modules(mute=True)
+    addon_updater.register_addon_updater(True)
 
     RegisterProperties()
     RegisterHandlers()
@@ -132,6 +122,7 @@ def register():
 
 def unregister():
     module_loader.developer_unregister_modules()
+    addon_updater.unregister_addon_updater()
 
     UnRegisterProperties()
     UnRegisterHandlers()
