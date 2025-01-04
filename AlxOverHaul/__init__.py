@@ -12,7 +12,7 @@ bl_info = {
     "author": "Valerie Bosco[Valy Arhal]",
     "description": "",
     "warning": "[Heavly Under Development] And Subject To Substantial Changes",
-    "version": (0, 7, 2),
+    "version": (0, 7, 3),
     "blender": (4, 0, 0),
     "category": "3D View",
     "location": "[Ctrl Alt A] General Menu, [Shift Alt S] Pivot Menu, [Tab] Auto Mode Pie Menu",
@@ -24,9 +24,8 @@ bl_info = {
 module_loader = Alx_Module_Manager(__path__, globals())
 module_loader.developer_load_modules()
 
-addon_name = bl_info["name"]
+
 addon_updater = Alx_Addon_Updater(__path__[0], bl_info, "Github", "Valerie-Bosco", "AlxOverHaul", "https://github.com/Valerie-Bosco/AlxOverHaul/releases")
-# addon_updater.set_version_target(minimum_version=(0, 7, 0))
 
 
 def RegisterProperties():
@@ -112,7 +111,7 @@ def UnRegisterHandlers():
 def register():
     module_loader.developer_load_modules
     module_loader.developer_register_modules(mute=True)
-    addon_updater.register_addon_updater(True)
+    addon_updater.register_addon_updater(mute=True)
 
     RegisterProperties()
     RegisterHandlers()

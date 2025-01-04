@@ -55,8 +55,8 @@ class Alx_OT_Mesh_VertexGroup_Clean(bpy.types.Operator):
 
     def draw(self, context: bpy.types.Context):
         self.layout.row().label(text="remove:")
-        self.layout.row().prop(self, "condition_empty", text="empty")
-        self.layout.row().prop(self, "condition_non_bone", text="name missmatch")
+        self.layout.row().prop(self, "b_empty", text="empty")
+        self.layout.row().prop(self, "b_skeleton_only", text="name missmatch")
 
     def invoke(self, context: bpy.types.Context, event):
         return context.window_manager.invoke_props_dialog(self, width=300)
