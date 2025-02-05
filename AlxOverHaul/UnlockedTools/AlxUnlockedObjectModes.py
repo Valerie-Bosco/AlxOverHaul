@@ -330,18 +330,19 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                         ]
                     ))
 
-                    for armature in armatures:
-                        armature.hide_set(
-                            False, view_layer=context.view_layer)
-                        armature.hide_viewport = False
+                    if (len(armatures) > 0):
+                        for armature in armatures:
+                            armature.hide_set(
+                                False, view_layer=context.view_layer)
+                            armature.hide_viewport = False
 
-                        armature.select_set(
-                            True, view_layer=context.view_layer)
+                            armature.select_set(
+                                True, view_layer=context.view_layer)
 
-                        if (context.active_object is not None and context.active_object.type != "ARMATURE"):
-                            context.view_layer.objects.active = armature
+                            if (context.active_object is not None and context.active_object.type != "ARMATURE"):
+                                context.view_layer.objects.active = armature
 
-                    bpy.ops.object.mode_set(mode="POSE")
+                        bpy.ops.object.mode_set(mode="POSE")
 
                 return {"FINISHED"}
             # endregion
