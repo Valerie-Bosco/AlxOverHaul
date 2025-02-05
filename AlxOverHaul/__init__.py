@@ -2,9 +2,10 @@ import importlib
 
 import bpy
 
-from . import AlxAlexandriaGeneralPanel, AlxHandlers, AlxProperties
-from .Alx_Module_Manager import Alx_Module_Manager
 from .modules.addon_updater_system.addon_updater import Alx_Addon_Updater
+from .modules.Alx_Module_Manager import Alx_Module_Manager
+from .reorganize_later import (AlxAlexandriaGeneralPanel, AlxHandlers,
+                               AlxProperties)
 from .UnlockedTools import AlxUnlockedModeling
 
 bl_info = {
@@ -12,7 +13,7 @@ bl_info = {
     "author": "Valerie Bosco[Valy Arhal]",
     "description": "",
     "warning": "[Heavly Under Development] And Subject To Substantial Changes",
-    "version": (0, 7, 3),
+    "version": (0, 7, 4),
     "blender": (4, 0, 0),
     "category": "3D View",
     "location": "[Ctrl Alt A] General Menu, [Shift Alt S] Pivot Menu, [Tab] Auto Mode Pie Menu",
@@ -22,9 +23,6 @@ bl_info = {
 
 
 module_loader = Alx_Module_Manager(__path__, globals())
-module_loader.developer_load_modules()
-
-
 addon_updater = Alx_Addon_Updater(__path__[0], bl_info, "Github", "Valerie-Bosco", "AlxOverHaul", "https://github.com/Valerie-Bosco/AlxOverHaul/releases")
 
 
@@ -109,8 +107,7 @@ def UnRegisterHandlers():
 
 
 def register():
-    module_loader.developer_load_modules
-    module_loader.developer_register_modules(mute=True)
+    module_loader.developer_register_modules(mute=False)
     addon_updater.register_addon_updater(mute=True)
 
     RegisterProperties()

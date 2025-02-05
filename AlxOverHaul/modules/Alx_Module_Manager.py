@@ -1,18 +1,13 @@
-import bpy.utils.previews
 import os
 from contextlib import redirect_stdout
-from typing import Optional
-
-
 from inspect import getmembers, isclass
-from typing import Any
-
-from pathlib import Path
 from os import sep as os_separator
-
-from .module_data.icons import icons
+from pathlib import Path
+from typing import Any, Optional
 
 import bpy
+
+from . import Alx_Module_Manager_Utils
 
 
 class Alx_Module_Manager():
@@ -22,30 +17,23 @@ class Alx_Module_Manager():
     __module_path: str = ""
     __module_folders: set[Path] = set()
     __module_files: dict[str, Path] = dict()
-    __module_classes: set[str] = set()
+    __module_classes: list[str] = list()
 
     __folder_blacklist: set[str] = set()
     __folder_blacklist.update({"__pycache__"})
     __file_blacklist: set[str] = set()
-    __file_blacklist.update({"__init__.py", "Alx_Module_Manager"})
-
-    __module_data_path: str
-    __module_icons_path: str
+    __file_blacklist.update({"__init__.py"})
 
     def __init__(self, path: str, globals: dict[str, Any]):
         self.__init_globals = globals
 
         self.__module_path = path[0]
-        self.__module_data_path = f"{self.__module_path}\\module_data"
-        self.__module_icons_path = f"{self.__module_data_path}\\icons"
 
-    def developer_load_modules(self):
+    def developer_register_modules(self, mute: Optional[bool] = True):
         self.__module_folders = self.__gather_addon_folders(self.__module_path, self.__folder_blacklist)
         self.__module_files = self.__gather_addon_files(self.__module_folders, self.__file_blacklist)
         self.__execute_locals_update(self.__module_path, self.__module_files)
         self.__module_classes = self.__gather_classes_from_files(self.__module_files)
-
-    def developer_register_modules(self, mute: Optional[bool] = True):
         self.__register_addon_classes(self.__module_classes, mute=mute)
 
     def developer_unregister_modules(self):
@@ -56,30 +44,6 @@ class Alx_Module_Manager():
 
     def developer_blacklist_file(self, files: set[str]):
         self.__file_blacklist.add(*files)
-
-    def developer_register_module_icons(self):
-        if (self.__verify_module_data_path()):
-            try:
-                icons_path = Path(self.__module_icons_path)
-                if (icons_path.exists()) and (icons_path.is_dir()):
-                    for icon_file in icons_path.iterdir():
-                        if (icon_file.suffix in [".png"]):
-                            new_icon = bpy.utils.previews.new()
-                            new_icon.load(icon_file.name.removesuffix(icon_file.suffix).upper(),
-                                          str(icons_path.joinpath(icon_file.name)),
-                                          "IMAGE")
-                            icons.icons.update({icon_file.name.removesuffix(icon_file.suffix).upper(): new_icon})
-
-            except Exception as error:
-                print(error)
-
-    def developer_unregister_module_icons(self):
-        try:
-            for icon_name in icons.icons.keys():
-                bpy.utils.previews.remove(icons.icons.get(icon_name))
-                icons.icons.clear()
-        except:
-            pass
 
     def __gather_addon_folders(self, path: str, folder_blacklist: set[str] = {"__pycache__"}):
         """
@@ -124,18 +88,25 @@ class Alx_Module_Manager():
         return addon_files
 
     def __gather_classes_from_files(self, addon_files: dict[str, Path] = None):
-        addon_classes: set[str] = set()
+        addon_classes: list[str] = list({cls[1] for file_name in addon_files.keys() for cls in getmembers(eval(file_name, self.__init_globals), isclass)})
 
-        for file_name in addon_files.keys():
-
-            for addon_class in getmembers(eval(file_name, self.__init_globals), isclass):
-                addon_classes.add(addon_class[1])
-
+        # for addon_class in addon_classes:
+        #     if (hasattr(addon_class, "mm_flags")):
+        #         for flag in addon_class.mm_flags:
+        #             match flag:
+        #                 case Alx_Module_Manager_Utils.FLAG_DEPENDENCY:
+        #                     for dependency in flag[1]:
+        #                         dependency_index = addon_classes.index(dependency)
+        #                         addon_class_index = addon_classes.index(addon_class)
+        # if (dependency_index < addon_class_index):
+        #     dep = addon_classes.pop(dependency_index)
+        #     addon_classes.insert(addon_class_index, dep)
+        # print(addon_classes)
         return addon_classes
 
     def __execute_locals_update(self, path: str, addon_files: dict[str, Path]):
         for file_name in addon_files.keys():
-            if (file_name != "Alx_Module_Manager"):
+            if (file_name != __file__):
                 try:
                     if (file_name not in self.__init_globals):
                         relative_path = str(addon_files.get(file_name).relative_to(path)).replace(os_separator, ".")
@@ -182,19 +153,3 @@ class Alx_Module_Manager():
                     bpy.utils.unregister_class(addon_class)
             except:
                 pass
-
-    def __verify_module_data_path(self) -> bool:
-        try:
-            data_path = Path(self.__module_data_path)
-            icons_path = Path(self.__module_icons_path)
-
-            if (data_path.exists() == False):
-                data_path.mkdir(parents=True, exist_ok=True)
-
-            if (icons_path.exists() == False):
-                icons_path.mkdir(parents=True, exist_ok=True)
-
-            return True
-        except Exception as error:
-            print(error)
-        return False

@@ -81,7 +81,7 @@ class Alx_MT_MenuPie_UnlockedObjectModes(bpy.types.Menu):
             sbe_surface.target_object_type = "SURFACE"
 
             sbe_meta: Alx_OT_operator_UnlockedObjectModes = selection_bulk_edit_box_M.row().operator(
-                Alx_OT_operator_UnlockedObjectModes.bl_idname, text="MetaShape", icon="META_DATA")
+                Alx_OT_operator_UnlockedObjectModes.bl_idname, text="Meta", icon="META_DATA")
             sbe_meta.target_object_mode = "EDIT"
             sbe_meta.target_object_type = "META"
 
@@ -90,29 +90,30 @@ class Alx_MT_MenuPie_UnlockedObjectModes(bpy.types.Menu):
             sbe_text.target_object_mode = "EDIT"
             sbe_text.target_object_type = "FONT"
 
-            gpenci_row = selection_bulk_edit_box_R.row()
-            sbe_gpencil_point: Alx_OT_operator_UnlockedObjectModes = gpenci_row.operator(
+            sbe_lattice: Alx_OT_operator_UnlockedObjectModes = selection_bulk_edit_box_M.row().operator(
+                Alx_OT_operator_UnlockedObjectModes.bl_idname, text="Lattice", icon="LATTICE_DATA")
+            sbe_lattice.target_object_mode = "EDIT"
+            sbe_lattice.target_object_type = "LATTICE"
+
+            gpenci_column = selection_bulk_edit_box_R.column()
+            sbe_gpencil_point: Alx_OT_operator_UnlockedObjectModes = gpenci_column.operator(
                 Alx_OT_operator_UnlockedObjectModes.bl_idname, text="GPencil", icon="GP_SELECT_POINTS")
             sbe_gpencil_point.target_object_mode = "EDIT"
             sbe_gpencil_point.target_object_sub_mode = "POINT"
             sbe_gpencil_point.target_object_type = "GPENCIL"
 
-            sbe_gpencil_stroke: Alx_OT_operator_UnlockedObjectModes = gpenci_row.operator(
-                Alx_OT_operator_UnlockedObjectModes.bl_idname, text="", icon="GP_SELECT_STROKES")
+            sbe_gpencil_stroke: Alx_OT_operator_UnlockedObjectModes = gpenci_column.operator(
+                Alx_OT_operator_UnlockedObjectModes.bl_idname, text="Strokes", icon="GP_SELECT_STROKES")
             sbe_gpencil_stroke.target_object_mode = "EDIT"
             sbe_gpencil_stroke.target_object_sub_mode = "STROKE"
             sbe_gpencil_stroke.target_object_type = "GPENCIL"
 
-            sbe_gpencil_segment: Alx_OT_operator_UnlockedObjectModes = gpenci_row.operator(
-                Alx_OT_operator_UnlockedObjectModes.bl_idname, text="", icon="GP_SELECT_BETWEEN_STROKES")
+            sbe_gpencil_segment: Alx_OT_operator_UnlockedObjectModes = gpenci_column.operator(
+                Alx_OT_operator_UnlockedObjectModes.bl_idname, text="B-Strokes", icon="GP_SELECT_BETWEEN_STROKES")
             sbe_gpencil_segment.target_object_mode = "EDIT"
             sbe_gpencil_segment.target_object_sub_mode = "SEGMENT"
             sbe_gpencil_segment.target_object_type = "GPENCIL"
 
-            sbe_lattice: Alx_OT_operator_UnlockedObjectModes = selection_bulk_edit_box_R.row().operator(
-                Alx_OT_operator_UnlockedObjectModes.bl_idname, text="Lattice", icon="LATTICE_DATA")
-            sbe_lattice.target_object_mode = "EDIT"
-            sbe_lattice.target_object_type = "LATTICE"
         else:
             PieMenu.box().label(text="[Selection] [Missing]")
 
@@ -139,173 +140,249 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
     target_object_mode: bpy.props.StringProperty(
         name="target object mode", default="OBJECT", options={"HIDDEN"})  # type:ignore
     target_object_sub_mode: bpy.props.StringProperty(
-        name="target object sub-mode", default="none", options={"HIDDEN"})  # type:ignore
+        name="target object sub-mode", default="", options={"HIDDEN"})  # type:ignore
     target_object_type: bpy.props.StringProperty(
-        name="target object type", default="MESH", options={"HIDDEN"})  # type:ignore
+        name="target object type", default="", options={"HIDDEN"})  # type:ignore
 
     @classmethod
     def poll(self, context: bpy.types.Context):
         return (context.area.type == "VIEW_3D")
 
     def execute(self, context):
-        selection_size = len(context.selected_objects)
-
         match self.target_object_mode:
+            # region
             case "OBJECT":
                 if (context.mode != "OBJECT"):
                     bpy.ops.object.mode_set(mode="OBJECT")
                 return {"FINISHED"}
+            # endregion
 
+            # region
             case "EDIT":
                 if (context.mode != "OBJECT"):
                     bpy.ops.object.mode_set(mode="OBJECT")
 
-                if (selection_size > 0):
-                    match self.target_object_type:
-                        case "MESH":
-                            if (self.target_object_sub_mode in ["VERT", "EDGE", "FACE"]):
-                                if (self.target_object_type in TD_object_types):
-                                    can_run = False
+                if (len(context.selected_objects) > 0):
+                    if (self.target_object_type in TD_object_types):
+                        match self.target_object_type:
+                            case "MESH":
+                                if (self.target_object_sub_mode in ["VERT", "EDGE", "FACE"]):
                                     for selected_object in context.selected_objects:
-                                        if (selected_object.type == self.target_object_type):
-                                            selected_object.select_set(True)
-                                            can_run = True
+                                        if (context.active_object is not None and context.active_object.type != "MESH"):
+                                            context.view_layer.objects.active = selected_object
 
-                                if (can_run == True):
-                                    bpy.ops.object.mode_set_with_submode(
-                                        mode="EDIT", mesh_select_mode=set([self.target_object_sub_mode]))
+                                    if (len(context.selected_objects) > 0) and (context.active_object.type == "MESH"):
+                                        bpy.ops.object.mode_set_with_submode(
+                                            mode="EDIT",
+                                            mesh_select_mode=set([self.target_object_sub_mode])
+                                        )
                                 return {"FINISHED"}
 
-                        case "ARMATURE":
-                            if (self.target_object_sub_mode == ""):
-                                armature_selection_override = list(filter(
-                                    lambda object: object is not None,
+                            case "ARMATURE":
+                                if (self.target_object_sub_mode == ""):
+                                    armature_selection_override = list(
+                                        filter(
+                                            lambda object: object is not None,
 
-                                    [selected_object if (selected_object.type == "ARMATURE") else selected_object.find_armature()
-                                     for selected_object in context.selected_objects
-                                     if (selected_object is not None) and (selected_object.type in ["ARMATURE", "MESH"])]
-                                ))
+                                            [selected_object if (selected_object.type == "ARMATURE") else selected_object.find_armature()
+                                             for selected_object in context.selected_objects
+                                             if (selected_object is not None) and (selected_object.type in ["ARMATURE", "MESH"])]
+                                        )
+                                    )
 
-                                if (not (len(armature_selection_override) > 0)):
-                                    return {"CANCELLED"}
+                                    if (len(armature_selection_override) <= 0):
+                                        return {"CANCELLED"}
 
-                                if (context.active_object.type == "MESH"):
-                                    reference_object = context.active_object
+                                    if (context.active_object.type == "MESH"):
+                                        reference_object = context.active_object
 
-                                    reference_object.select_set(False)
-                                    context.view_layer.objects.active = reference_object.find_armature()
+                                        context.view_layer.objects.active = reference_object.find_armature()
 
-                                    for armature_object in armature_selection_override:
-                                        armature_object.select_set(True)
+                                        for armature_object in armature_selection_override:
+                                            armature_object.select_set(True)
 
-                                if (context.active_object.type == "ARMATURE"):
-                                    reference_object = context.active_object
+                                    if (context.active_object.type == "ARMATURE"):
+                                        reference_object = context.active_object
 
-                                    reference_object.select_set(True)
-                                    context.view_layer.objects.active = reference_object
+                                        reference_object.select_set(True)
+                                        context.view_layer.objects.active = reference_object
 
-                                    for armature_object in armature_selection_override:
-                                        armature_object.select_set(True)
+                                        for armature_object in armature_selection_override:
+                                            armature_object.select_set(True)
 
-                                bpy.ops.object.mode_set(mode="EDIT")
+                                    if (len(context.selected_objects) > 0) and (context.active_object.type == "ARMATURE"):
+                                        bpy.ops.object.mode_set(mode="EDIT")
+                                    return {"FINISHED"}
+
+                            case "CURVE":
+                                if (self.target_object_sub_mode == ""):
+                                    for selected_object in context.selected_objects:
+                                        if (context.active_object is not None and context.active_object.type != "CURVE"):
+                                            context.view_layer.objects.active = selected_object
+
+                                    if (len(context.selected_objects) > 0) and (context.active_object.type == "CURVE"):
+                                        bpy.ops.object.mode_set(mode="EDIT")
+
                                 return {"FINISHED"}
 
-                        case "GPENCIL":
-                            if (self.target_object_sub_mode in ["POINT", "STROKE", "SEGMENT"]):
-                                bpy.ops.object.mode_set(mode="EDIT_GPENCIL")
-                                context.scene.tool_settings.gpencil_selectmode_edit = self.target_object_sub_mode
+                            case "SURFACE":
+                                if (self.target_object_sub_mode == ""):
+                                    for selected_object in context.selected_objects:
+                                        if (context.active_object is not None and context.active_object.type != "SURFACE"):
+                                            context.view_layer.objects.active = selected_object
 
-                        case _:
-                            if (self.target_object_sub_mode == ""):
-                                for selected_object in context.selected_objects:
-                                    if (selected_object is not None) and (selected_object in ["ARMATURE", "CURVE", "SURFACE", "META", "FONT", "LATTICE"]):
-                                        context.view_layer.objects.active = selected_object
+                                    if (len(context.selected_objects) > 0) and (context.active_object.type == "SURFACE"):
+                                        bpy.ops.object.mode_set(mode="EDIT")
 
-                                bpy.ops.object.mode_set(mode="EDIT")
+                                return {"FINISHED"}
+
+                            case "META":
+                                if (self.target_object_sub_mode == ""):
+                                    for selected_object in context.selected_objects:
+                                        if (context.active_object is not None and context.active_object.type != "META"):
+                                            context.view_layer.objects.active = selected_object
+
+                                    if (len(context.selected_objects) > 0) and (context.active_object.type == "META"):
+                                        bpy.ops.object.mode_set_with_submode(
+                                            mode="EDIT",
+                                            mesh_select_mode=set([self.target_object_sub_mode])
+                                        )
+
+                                return {"FINISHED"}
+
+                            case "FONT":
+                                if (self.target_object_sub_mode == ""):
+                                    for selected_object in context.selected_objects:
+                                        if (context.active_object is not None and context.active_object.type != "FONT"):
+                                            context.view_layer.objects.active = selected_object
+
+                                    if (len(context.selected_objects) > 0) and (context.active_object.type == "FONT"):
+                                        bpy.ops.object.mode_set_with_submode(
+                                            mode="EDIT",
+                                            mesh_select_mode=set([self.target_object_sub_mode])
+                                        )
+
+                                return {"FINISHED"}
+
+                            case "LATTICE":
+                                if (self.target_object_sub_mode == ""):
+                                    for selected_object in context.selected_objects:
+                                        if (context.active_object is not None and context.active_object.type != "LATTICE"):
+                                            context.view_layer.objects.active = selected_object
+
+                                    if (len(context.selected_objects) > 0) and (context.active_object.type == "LATTICE"):
+                                        bpy.ops.object.mode_set_with_submode(
+                                            mode="EDIT",
+                                            mesh_select_mode=set([self.target_object_sub_mode])
+                                        )
+
+                                return {"FINISHED"}
+
+                            case "GPENCIL":
+                                if (self.target_object_sub_mode in ["POINT", "STROKE", "SEGMENT"]):
+                                    for selected_object in context.selected_objects:
+                                        if (context.active_object is not None and context.active_object.type != "GPENCIL"):
+                                            context.view_layer.objects.active = selected_object
+
+                                    if (len(context.selected_objects) > 0) and (context.active_object.type == "GPENCIL"):
+                                        bpy.ops.object.mode_set(mode="EDIT_GPENCIL")
+                                        context.scene.tool_settings.gpencil_selectmode_edit = self.target_object_sub_mode
+
                                 return {"FINISHED"}
 
                 return {"FINISHED"}
+            # endregion
 
+            # region
             case "SCULPT":
-                if (context.mode != "SCULPT"):
-                    if (selection_size > 0):
-                        sculpt_selection_override = [selected_object for selected_object in context.selected_objects if (
-                            selected_object.type == "MESH")]
+                if (context.mode != "OBJECT"):
+                    bpy.ops.object.mode_set(mode="OBJECT")
 
-                        if (len(sculpt_selection_override) == 0):
-                            return {"CANCELLED"}
+                if (len(context.selected_objects) > 0):
+                    sculpt_selection_override = [
+                        selected_object
+                        for selected_object in context.selected_objects
+                        if (selected_object.type == "MESH")
+                    ]
 
-                        bpy.ops.object.mode_set(mode="OBJECT")
-                        context.view_layer.objects.active = sculpt_selection_override[0]
-                        bpy.ops.object.mode_set(mode="SCULPT")
+                    if (len(sculpt_selection_override) == 0):
+                        return {"CANCELLED"}
+
+                    bpy.ops.object.mode_set(mode="OBJECT")
+                    context.view_layer.objects.active = sculpt_selection_override[0]
+                    bpy.ops.object.mode_set(mode="SCULPT")
 
                 return {"FINISHED"}
+            # endregion
 
+            # region
             case "POSE":
-                if (context.mode != "POSE"):
-                    if (selection_size != 0):
-                        if (context.mode == "PAINT_WEIGHT"):
-                            bpy.ops.object.mode_set(mode="OBJECT")
+                if (context.mode != "OBJECT"):
+                    bpy.ops.object.mode_set(mode="OBJECT")
 
-                        armature = None
+                if (len(context.selected_objects) > 0):
+                    armatures = list(filter(
+                        lambda object: object is not None,
+                        [
+                            selected_object if (selected_object.type == "ARMATURE") else selected_object.find_armature()
+                            for selected_object in context.selected_objects
+                            if (selected_object.type in ["MESH", "ARMATURE"])
+                        ]
+                    ))
 
-                        if (context.active_object is not None):
-                            if (context.active_object.type == "MESH"):
-                                armature = context.active_object.find_armature()
-                            else:
-                                if (context.active_object.type == "ARMATURE"):
-                                    armature = context.active_object
+                    for armature in armatures:
+                        armature.hide_set(
+                            False, view_layer=context.view_layer)
+                        armature.hide_viewport = False
 
+                        armature.select_set(
+                            True, view_layer=context.view_layer)
+
+                        if (context.active_object is not None and context.active_object.type != "ARMATURE"):
+                            context.view_layer.objects.active = armature
+
+                    bpy.ops.object.mode_set(mode="POSE")
+
+                return {"FINISHED"}
+            # endregion
+
+            # region
+            case "PAINT_WEIGHT":
+                if (context.mode != "OBJECT"):
+                    bpy.ops.object.mode_set(mode="OBJECT")
+
+                if (len(context.selected_objects) > 0):
+                    mesh = None
+                    armature = None
+
+                    if (context.active_object.type == "MESH"):
+                        context.active_object.select_set(
+                            True, view_layer=context.view_layer)
+
+                        mesh = context.active_object
+                        armature = context.active_object.find_armature()
                         if (armature is not None):
+                            armature.select_set(
+                                True, view_layer=context.view_layer)
                             armature.hide_set(
                                 False, view_layer=context.view_layer)
                             armature.hide_viewport = False
+                    else:
+                        if (context.active_object.type == "ARMATURE"):
+                            for selected_object in context.selected_objects:
+                                if (selected_object.type == "MESH"):
+                                    mesh = selected_object
+                                    armature = selected_object.find_armature()
+                                    if (armature is not None) and (armature is context.active_object):
+                                        armature.select_set(
+                                            True, view_layer=context.view_layer)
+                                        context.view_layer.objects.active = selected_object
+                                        break
 
-                            armature.select_set(
-                                True, view_layer=context.view_layer)
-                            context.view_layer.objects.active = armature
-
-                        if (armature is not None):
-                            bpy.ops.object.mode_set(mode="POSE")
-
-                return {"FINISHED"}
-
-            case "PAINT_WEIGHT":
-                if (context.mode != "PAINT_WEIGHT"):
-                    if (selection_size != 0):
-                        if (context.mode == "POSE"):
-                            bpy.ops.object.mode_set(mode="OBJECT")
-
-                        mesh = None
-                        armature = None
-
-                        if (context.active_object.type == "MESH"):
-                            context.active_object.select_set(
-                                True, view_layer=context.view_layer)
-
-                            mesh = context.active_object
-                            armature = context.active_object.find_armature()
-                            if (armature is not None):
-                                armature.select_set(
-                                    True, view_layer=context.view_layer)
-                                armature.hide_set(
-                                    False, view_layer=context.view_layer)
-                                armature.hide_viewport = False
-                        else:
-                            if (context.active_object.type == "ARMATURE"):
-                                for selected_object in context.selected_objects:
-                                    if (selected_object.type == "MESH"):
-                                        mesh = selected_object
-                                        armature = selected_object.find_armature()
-                                        if (armature is not None) and (armature is context.active_object):
-                                            armature.select_set(
-                                                True, view_layer=context.view_layer)
-                                            context.view_layer.objects.active = selected_object
-                                            break
-
-                        if (armature is not None) or (mesh is not None):
-                            bpy.ops.object.mode_set(mode="WEIGHT_PAINT")
+                    if (armature is not None) or (mesh is not None):
+                        bpy.ops.object.mode_set(mode="WEIGHT_PAINT")
 
                 return {"FINISHED"}
+            # endregion
 
         return {"FINISHED"}

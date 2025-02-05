@@ -1,6 +1,11 @@
 import bpy
 
-from ..utilities.Alx_armature_utils import Get_ActiveObject_Skeleton, Get_PoseBone_Always_Left, Get_PoseBone_Always_Right, Get_PoseBone_Opposite, AlxCloneIKSettings, AlxCloneIKBoneLimitOnChain
+from ..utilities.Alx_Armature_Utils import (AlxCloneIKBoneLimitOnChain,
+                                            AlxCloneIKSettings,
+                                            Get_ActiveObject_Skeleton,
+                                            Get_PoseBone_Always_Left,
+                                            Get_PoseBone_Always_Right,
+                                            Get_PoseBone_Opposite)
 
 
 class Alx_OT_Armature_Pose_SetPosePosition(bpy.types.Operator):

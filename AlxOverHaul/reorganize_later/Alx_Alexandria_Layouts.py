@@ -1,6 +1,6 @@
 import bpy
 
-from .utilities.AlxUtilities import get_enum_property_items
+from ..utilities.AlxUtilities import get_enum_property_items
 
 LABEL = "LABEL_"
 SEPARATOR = "SEPARATOR"

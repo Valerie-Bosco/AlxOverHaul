@@ -1,7 +1,8 @@
-import bpy
 import bmesh
+import bpy
 
-from ..utilities.AlxUtilities import operator_log_warning, get_modifiers_of_type
+from ..utilities.AlxUtilities import (get_modifiers_of_type,
+                                      operator_log_warning)
 
 
 class Alx_OT_Armature_BoneChainOnSelection(bpy.types.Operator):

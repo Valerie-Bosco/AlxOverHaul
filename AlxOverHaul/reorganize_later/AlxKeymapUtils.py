@@ -1,8 +1,8 @@
 import bpy
 
-from .UnlockedTools import AlxUnlockedObjectModes
+from ..UnlockedTools import AlxUnlockedObjectModes
 
-from . import Alx_preferences
+from .. import Alx_preferences
 from . import AlxAlexandriaGeneralPanel
 
 AlxAddonKeymaps = []

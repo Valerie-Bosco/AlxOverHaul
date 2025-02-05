@@ -1,34 +1,55 @@
 import random
 
-import bpy
 import bmesh
+import bpy
 
-from ..AlxGpuUI import draw_unlocked_modeling_ui
+# from ..reorganize_later.AlxGpuUI import draw_unlocked_modeling_ui
 
 
 class Alx_PG_PropertyGroup_UnlockedModelingProperties(bpy.types.PropertyGroup):
     """"""
 
-    leftclick_selection_mode: bpy.props.EnumProperty(name="Left Click", default="NONE",
-                                                     items=[
-                                                          ("NONE", "Standard", "", 1),
-                                                          ("LOOP_SELECTION", "Loop", "", 1 << 1),
-                                                          ("LINKED_SELECTION", "Linked", "", 1 << 2)
-                                                     ])  # type:ignore
+# region [left click]
 
-    leftclick_selection_state_mode: bpy.props.EnumProperty(name="Extend", default="NONE",
-                                                           items=[
-                                                                ("NONE", "Single", "", 1),
-                                                                ("EXTEND", "Extend", "", 1 << 1)
-                                                           ])  # type:ignore
+    leftclick_selection_mode: bpy.props.EnumProperty(
+        name="Left Click",
+        default="NONE",
+        items=[
+            ("NONE", "Standard", "", 1),
+            ("LOOP_SELECTION", "Loop", "", 1 << 1),
+            ("LINKED_SELECTION", "Linked", "", 1 << 2)
+        ])  # type:ignore
+    leftclick_selection_extend: bpy.props.BoolProperty(
+        name="Extend",
+        default=False
+    )  # type:ignore
+    leftclick_selection_delimiter: bpy.props.EnumProperty(
+        name="Left Click",
+        default={"SEAM"},
+        options={"ENUM_FLAG"},
+        items=[
+            ("NORMAL", "Normal", "", 1),
+            ("MATERIAL", "Material", "", 1 << 1),
+            ("SEAM", "Seam", "", 1 << 2),
+            ("SHARP", "Sharp", "", 1 << 3),
+            ("UV", "UV", "", 1 << 4)
+        ])  # type:ignore
 
-    rightclick_mode: bpy.props.EnumProperty(name="Right Click", default="NONE",
-                                            items=[
-                                                 ("NONE", "Standard", "", 1),
-                                                ("POLY_MARK", "Mark Mode", "", 1 << 1),
-                                                ("POLY_DELETE", "Delete Mode", "", 1 << 2),
-                                                ("POLY_PAINT", "Paint Mode", "", 1 << 3)
-                                            ])  # type:ignore
+
+# endregion
+
+# region [right click]
+
+    rightclick_mode: bpy.props.EnumProperty(
+        name="Right Click", default="NONE",
+        items=[
+            ("NONE", "Standard", "", 1),
+            ("POLY_MARK", "Mark Mode", "", 1 << 1),
+            ("POLY_DELETE", "Delete Mode", "", 1 << 2),
+            ("POLY_PAINT", "Paint Mode", "", 1 << 3)
+        ])  # type:ignore
+
+# endregion
 
     edge_mark_type: bpy.props.EnumProperty(name="Mark Type", default={"NONE"}, options={"ENUM_FLAG"},
                                            items=[
@@ -92,10 +113,11 @@ class Alx_PT_Panel_UnlockedModeling(bpy.types.Panel):
         row = AlxLayout.split(factor=0.5)
         row.label(text="Left Click")
         row.prop(Properties, "leftclick_selection_mode", text="")
+        row.prop(Properties, "leftclick_selection_delimiter", expand=True)
 
         row = AlxLayout.split(factor=0.5)
         row.label(text="Extend")
-        row.prop(Properties, "leftclick_selection_state_mode", text="")
+        row.prop(Properties, "leftclick_selection_extend", text="")
 
         row = AlxLayout.split(factor=0.5)
         row.label(text="Right Click")
@@ -181,7 +203,7 @@ class Alx_OT_Tool_UnlockedModeling(bpy.types.Operator):
 
         if (context.area is not None) and (context.area.type == "VIEW_3D") and (context.mode == "EDIT_MESH"):
 
-            if (context.mode == "EDIT_MESH") and (context.edit_object.type == "MESH"):
+            if (context.edit_object.type == "MESH"):
                 self.ContextMesh = context.edit_object.data
                 if (self.ContextBmesh is None) or (not self.ContextBmesh.is_valid):
                     self.ContextBmesh = bmesh.from_edit_mesh(self.ContextMesh)
@@ -225,7 +247,8 @@ class Alx_OT_Tool_UnlockedModeling(bpy.types.Operator):
             operator_properties: Alx_PG_PropertyGroup_UnlockedModelingProperties = context.scene.alx_tool_unlocked_modeling_properties
 
             leftclick_selection_mode = operator_properties.leftclick_selection_mode
-            leftclick_extend_selection = (operator_properties.leftclick_selection_state_mode == "EXTEND")
+            leftclick_extend_selection = operator_properties.leftclick_selection_extend
+            leftclick_selection_delimiter = operator_properties.leftclick_selection_delimiter
 
             rightclick_mode = operator_properties.rightclick_mode
             edge_mark_type = operator_properties.edge_mark_type
@@ -237,35 +260,27 @@ class Alx_OT_Tool_UnlockedModeling(bpy.types.Operator):
             poly_paint_layers = operator_properties.poly_paint_layers
 
             if (event.type == "LEFTMOUSE") and (event.ctrl == False) and (event.value == "CLICK"):
-                if (context.mode == "EDIT_MESH"):
-                    override_window = context.window
-                    override_screen = override_window.screen
-                    override_area = [area for area in override_screen.areas if area.type == "VIEW_3D"]
-                    override_region = [region for region in override_area[0].regions if region.type == 'WINDOW']
+                if (leftclick_selection_mode == "NONE"):
+                    if (event.shift == False):
+                        bpy.ops.view3d.select("INVOKE_DEFAULT", extend=(event.shift == True) or (leftclick_extend_selection == True), toggle=True)
+                        bpy.ops.ed.undo_push(message=f"AlxUM Standard Select [extend:{leftclick_extend_selection}]")
+                        return {"RUNNING_MODAL"}
 
-                    with context.temp_override(window=override_window, area=override_area[0], region=override_region[0]):
+                    elif (event.shift == True):
+                        bpy.ops.mesh.select_all("INVOKE_DEFAULT", action="DESELECT")
+                        bpy.ops.ed.undo_push(message=f"AlxUM Standard Select [deselect all]")
+                        return {"RUNNING_MODAL"}
 
-                        if (leftclick_selection_mode == "NONE"):
-                            if (event.shift == False):
-                                bpy.ops.view3d.select("INVOKE_DEFAULT", extend=(event.shift == True) or (leftclick_extend_selection == True), toggle=True)
-                                bpy.ops.ed.undo_push(message=f"AlxUM Standard Select [extend:{leftclick_extend_selection}]")
-                                return {"RUNNING_MODAL"}
+                elif (leftclick_selection_mode == "LOOP_SELECTION"):
+                    bpy.ops.mesh.loop_select("INVOKE_DEFAULT", extend=leftclick_extend_selection, deselect=False, toggle=False, ring=False)
+                    bpy.ops.ed.undo_push(message=f"AlxUM Loop Select extend:{leftclick_extend_selection}")
+                    return {"RUNNING_MODAL"}
 
-                            elif (event.shift == True):
-                                bpy.ops.mesh.select_all("INVOKE_DEFAULT", action="DESELECT")
-                                bpy.ops.ed.undo_push(message=f"AlxUM Standard Select [deselect all]")
-                                return {"RUNNING_MODAL"}
-
-                        elif (leftclick_selection_mode == "LOOP_SELECTION"):
-                            bpy.ops.mesh.loop_select("INVOKE_DEFAULT", extend=leftclick_extend_selection, deselect=False, toggle=False, ring=False)
-                            bpy.ops.ed.undo_push(message=f"AlxUM Loop Select extend:{leftclick_extend_selection}")
-                            return {"RUNNING_MODAL"}
-
-                        elif (leftclick_selection_mode == "LINKED_SELECTION"):
-                            bpy.ops.view3d.select("INVOKE_DEFAULT", deselect=False, extend=leftclick_extend_selection)
-                            bpy.ops.mesh.select_linked("INVOKE_DEFAULT", delimit={"SEAM"})
-                            bpy.ops.ed.undo_push(message=f"AlxUM Linked Select extend:{leftclick_extend_selection}")
-                            return {"RUNNING_MODAL"}
+                elif (leftclick_selection_mode == "LINKED_SELECTION"):
+                    bpy.ops.view3d.select("INVOKE_DEFAULT", deselect=False, extend=leftclick_extend_selection)
+                    bpy.ops.mesh.select_linked("INVOKE_DEFAULT", delimit=leftclick_selection_delimiter)
+                    bpy.ops.ed.undo_push(message=f"AlxUM Linked Select extend:{leftclick_extend_selection}")
+                    return {"RUNNING_MODAL"}
 
                 return {"RUNNING_MODAL"}
 
@@ -383,6 +398,8 @@ class Alx_OT_Tool_UnlockedModeling(bpy.types.Operator):
                         self.report(type={"WARNING"}, message="Failed To Retieve Color Layers")
                     return {"RUNNING_MODAL"}
 
+                return {"PASS_THROUGH"}
+
             if (event.type == "RIGHTMOUSE") and (event.ctrl == True) and (event.value == "PRESS"):
 
                 if (rightclick_mode == "POLY_MARK"):
@@ -399,6 +416,8 @@ class Alx_OT_Tool_UnlockedModeling(bpy.types.Operator):
                     bmesh.update_edit_mesh(self.ContextMesh, loop_triangles=True, destructive=False)
                     bpy.ops.ed.undo_push(message=f"AlxUM Mark Selection: {edge_mark_type}")
                     return {"RUNNING_MODAL"}
+
+                return {"PASS_THROUGH"}
 
             self.bmesh_selection = [bmesh_edge.index for bmesh_edge in self.ContextBmesh.edges if (bmesh_edge.select == True)]
 

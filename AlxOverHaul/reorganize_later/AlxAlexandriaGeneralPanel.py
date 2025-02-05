@@ -1,24 +1,25 @@
 import bpy
 from bpy_extras import node_utils
 
-from .Definitions.AlxTypesDefinition import TD_modifier_modifiy_types, TD_modifier_generate_types, TD_modifier_deform_types, TD_modifier_physics_types
-
-
-from .utilities.Alx_armature_utils import Get_ActiveObject_Skeleton
-from .armature_tools.Alx_pose_tools import Alx_OT_Armature_Pose_SetPosePosition
-
-from . AlxProperties import Alx_PG_PropertyGroup_SessionProperties
-
-from . AlxAlexandriaLayouts import (UIPreset_PosePosition, UIPreset_VisibilityIsolator, UIPreset_OverlayToggles,
-                                    UIPreset_EnumButtons, UIPreset_ModifierList, UIPreset_ModifierSettings)
-
-from .AlxVisibilityOperators import Alx_OT_Scene_VisibilityIsolator
-
+from ..Definitions.AlxTypesDefinition import (TD_modifier_deform_types,
+                                              TD_modifier_generate_types,
+                                              TD_modifier_modifiy_types,
+                                              TD_modifier_physics_types)
+from ..pose_tools.Alx_pose_tools import Alx_OT_Armature_Pose_SetPosePosition
+from ..UITools.Alx_OT_UI_SimpleDesigner import Alx_OT_UI_SimpleDesigner
+from ..utilities.Alx_Armature_Utils import Get_ActiveObject_Skeleton
+from .Alx_Alexandria_Layouts import (UIPreset_EnumButtons,
+                                     UIPreset_ModifierList,
+                                     UIPreset_ModifierSettings,
+                                     UIPreset_OverlayToggles,
+                                     UIPreset_PosePosition,
+                                     UIPreset_VisibilityIsolator)
+from .AlxModifierOperators import (Alx_OT_Modifier_ApplyReplace,
+                                   Alx_OT_Modifier_BatchVisibility,
+                                   Alx_OT_Modifier_ManageOnSelected)
 from .AlxObjectOperator import Alx_OT_Object_UnlockedQOrigin
-
-from .AlxModifierOperators import Alx_OT_Modifier_ManageOnSelected, Alx_OT_Modifier_ApplyReplace, Alx_OT_Modifier_BatchVisibility
-
-from .UITools.Alx_OT_UI_SimpleDesigner import Alx_OT_UI_SimpleDesigner
+from .AlxProperties import Alx_PG_PropertyGroup_SessionProperties
+from .AlxVisibilityOperators import Alx_OT_Scene_VisibilityIsolator
 
 
 class Alx_PG_PropertyGroup_ObjectSelectionListItem(bpy.types.PropertyGroup):

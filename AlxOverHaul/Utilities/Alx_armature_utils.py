@@ -1,7 +1,14 @@
-import bpy
 import re
 
-from AlxOverHaul.utilities.AlxUtilities import AlxGetBoneNameOpposite, AlxGetIKConstraint, AlxInvertPoleAngle
+import bpy
+
+from .AlxUtilities import (AlxGetBoneNameOpposite, AlxGetIKConstraint,
+                           AlxInvertPoleAngle)
+
+
+def COMPARE_VertexGroups_BoneNames(objects: list[bpy.types.Object], armature: bpy.types.Armature):
+    bone_names = [bone.name for bone in armature.bones]
+    return [vertex_group for obj in objects for vertex_group in obj.vertex_groups if (obj is not None) if (hasattr(obj, "vertex_groups")) and (vertex_group.name not in bone_names)]
 
 
 def Get_ActiveObject_Skeleton(context: bpy.types.Context):

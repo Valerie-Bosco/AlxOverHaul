@@ -1,9 +1,9 @@
 import bpy
 
-from . MeshTools import AlxVertexGroupTools, AlxShapekeyTools
-from . armature_tools import Alx_pose_tools, AlxRiggingTools
-
-from . UVTools import AlxUDIMTools
+from ..armature_tools import Alx_rigging_tools
+from ..MeshTools import AlxShapekeyTools, AlxVertexGroupTools
+from ..pose_tools import Alx_pose_tools
+from ..UVTools import AlxUDIMTools
 
 
 class ALX_PT_UI_Addon_ToolShelf(bpy.types.Panel):
@@ -62,7 +62,7 @@ class ALX_PT_UI_Addon_ToolShelf(bpy.types.Panel):
             layout.operator(AlxShapekeyTools.Alx_OT_Shapekey_AddEmptyShapeKeys.bl_idname, text="Add Empty Shapekeys")
 
             layout.label(text="Rigging:")
-            layout.operator(AlxRiggingTools.Alx_OT_Armature_BoneChainOnSelection.bl_idname, text="Autorig Strip")
+            layout.operator(Alx_rigging_tools.Alx_OT_Armature_BoneChainOnSelection.bl_idname, text="Autorig Strip")
 
 
 class ALX_PT_UI_Addon_HelpSection(bpy.types.Panel):
