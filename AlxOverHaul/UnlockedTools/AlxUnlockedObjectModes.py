@@ -13,8 +13,8 @@ class Alx_MT_MenuPie_UnlockedObjectModes(bpy.types.Menu):
     def poll(self, context: bpy.types.Context):
         return (context.area.type == "VIEW_3D")
 
-    def draw(self, context):
-        PieMenu = self.layout.menu_pie()
+    def draw(self, context: bpy.types.Context):
+        PieMenu: bpy.types.UIPieMenu = self.layout.menu_pie()
 
         object_mode_button: Alx_OT_operator_UnlockedObjectModes = PieMenu.operator(
             Alx_OT_operator_UnlockedObjectModes.bl_idname, text="OBJECT", icon="OBJECT_DATAMODE")
@@ -58,7 +58,9 @@ class Alx_MT_MenuPie_UnlockedObjectModes(bpy.types.Menu):
 
         if (len(context.selected_objects) != 0):
 
-            selection_bulk_edit_box = PieMenu.box().row().split(factor=0.33)
+            selection_bulk_edit_box: bpy.types.UILayout = PieMenu.box().row().split(factor=0.33)
+            selection_bulk_edit_box.ui_units_x = 15
+
             selection_bulk_edit_box_L = selection_bulk_edit_box.column()
             selection_bulk_edit_box_M = selection_bulk_edit_box.column()
             selection_bulk_edit_box_R = selection_bulk_edit_box.column()
@@ -152,7 +154,7 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
     def poll(self, context: bpy.types.Context):
         return (context.area.type == "VIEW_3D")
 
-    def execute(self, context):
+    def execute(self, context: bpy.types.Context):
         match self.target_object_mode:
             # region
             case "OBJECT":
@@ -199,7 +201,6 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                         armature.hide_viewport = False
                                         armature.select_set(True)
 
-                                    else:
                                         if (context.active_object.type != "ARMATURE"):
                                             context.view_layer.objects.active = armature
 
@@ -210,8 +211,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                             case "CURVE":
                                 if (self.target_object_sub_mode == ""):
                                     for selected_object in context.selected_objects:
-                                        if (context.active_object is not None and context.active_object.type != "CURVE"):
-                                            context.view_layer.objects.active = selected_object
+                                        context.view_layer.objects.active = selected_object
+
+                                        if (context.active_object.type == "CURVE"):
+                                            break
 
                                     if (len(context.selected_objects) > 0) and (context.active_object.type == "CURVE"):
                                         bpy.ops.object.mode_set(mode="EDIT")
@@ -221,8 +224,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                             case "SURFACE":
                                 if (self.target_object_sub_mode == ""):
                                     for selected_object in context.selected_objects:
-                                        if (context.active_object is not None and context.active_object.type != "SURFACE"):
-                                            context.view_layer.objects.active = selected_object
+                                        context.view_layer.objects.active = selected_object
+
+                                        if (context.active_object.type == "SURFACE"):
+                                            break
 
                                     if (len(context.selected_objects) > 0) and (context.active_object.type == "SURFACE"):
                                         bpy.ops.object.mode_set(mode="EDIT")
@@ -232,8 +237,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                             case "META":
                                 if (self.target_object_sub_mode == ""):
                                     for selected_object in context.selected_objects:
-                                        if (context.active_object is not None and context.active_object.type != "META"):
-                                            context.view_layer.objects.active = selected_object
+                                        context.view_layer.objects.active = selected_object
+
+                                        if (context.active_object.type == "META"):
+                                            break
 
                                     if (len(context.selected_objects) > 0) and (context.active_object.type == "META"):
                                         bpy.ops.object.mode_set(mode="EDIT")
@@ -244,6 +251,7 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                 if (self.target_object_sub_mode == ""):
                                     for selected_object in context.selected_objects:
                                         context.view_layer.objects.active = selected_object
+
                                         if (context.active_object.type == "FONT"):
                                             break
 
@@ -255,26 +263,40 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                             case "LATTICE":
                                 if (self.target_object_sub_mode == ""):
                                     for selected_object in context.selected_objects:
-                                        if (context.active_object is not None and context.active_object.type != "LATTICE"):
-                                            context.view_layer.objects.active = selected_object
+                                        context.view_layer.objects.active = selected_object
+
+                                        if (context.active_object.type == "LATTICE"):
+                                            break
 
                                     if (len(context.selected_objects) > 0) and (context.active_object.type == "LATTICE"):
-                                        bpy.ops.object.mode_set_with_submode(
-                                            mode="EDIT",
-                                            mesh_select_mode=set([self.target_object_sub_mode])
-                                        )
+                                        bpy.ops.object.mode_set(mode="EDIT")
 
                                 return {"FINISHED"}
 
                             case "GPENCIL":
-                                if (self.target_object_sub_mode in ["POINT", "STROKE", "SEGMENT"]):
-                                    for selected_object in context.selected_objects:
-                                        if (context.active_object is not None and context.active_object.type != "GPENCIL"):
+                                if (bpy.app.version[:2] in {(4, 0), (4, 1), (4, 2)}):
+                                    if (self.target_object_sub_mode in ["POINT", "STROKE", "SEGMENT"]):
+                                        for selected_object in context.selected_objects:
                                             context.view_layer.objects.active = selected_object
 
-                                    if (len(context.selected_objects) > 0) and (context.active_object.type == "GPENCIL"):
-                                        bpy.ops.object.mode_set(mode="EDIT_GPENCIL")
-                                        context.scene.tool_settings.gpencil_selectmode_edit = self.target_object_sub_mode
+                                            if (context.active_object.type == "GPENCIL"):
+                                                break
+
+                                        if (len(context.selected_objects) > 0) and (context.active_object.type == "GPENCIL"):
+                                            bpy.ops.object.mode_set(mode="EDIT_GPENCIL")
+                                            context.scene.tool_settings.gpencil_selectmode_edit = self.target_object_sub_mode
+
+                                if (bpy.app.version[:2] in {(4, 3), (4, 4)}):
+                                    if (self.target_object_sub_mode in ["POINT", "STROKE", "SEGMENT"]):
+                                        for selected_object in context.selected_objects:
+                                            context.view_layer.objects.active = selected_object
+
+                                            if (context.active_object.type == "GREASEPENCIL"):
+                                                break
+
+                                        if (len(context.selected_objects) > 0) and (context.active_object.type == "GREASEPENCIL"):
+                                            bpy.ops.object.mode_set(mode="EDIT")
+                                            context.scene.tool_settings.gpencil_selectmode_edit = self.target_object_sub_mode
 
                                 return {"FINISHED"}
 
