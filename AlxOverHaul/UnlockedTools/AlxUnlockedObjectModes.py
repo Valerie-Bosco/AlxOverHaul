@@ -66,33 +66,37 @@ class Alx_MT_MenuPie_UnlockedObjectModes(bpy.types.Menu):
             sbe_armature: Alx_OT_operator_UnlockedObjectModes = selection_bulk_edit_box_L.row().operator(
                 Alx_OT_operator_UnlockedObjectModes.bl_idname, text="Armature", icon="ARMATURE_DATA")
             sbe_armature.target_object_mode = "EDIT"
-            sbe_armature.target_object_type = "ARMATURE"
             sbe_armature.target_object_sub_mode = ""
+            sbe_armature.target_object_type = "ARMATURE"
 
             sbe_curve: Alx_OT_operator_UnlockedObjectModes = selection_bulk_edit_box_L.row().operator(
                 Alx_OT_operator_UnlockedObjectModes.bl_idname, text="Curve", icon="CURVE_DATA")
             sbe_curve.target_object_mode = "EDIT"
-            sbe_curve.target_object_type = "CURVE"
             sbe_curve.target_object_sub_mode = ""
+            sbe_curve.target_object_type = "CURVE"
 
             sbe_surface: Alx_OT_operator_UnlockedObjectModes = selection_bulk_edit_box_L.row().operator(
                 Alx_OT_operator_UnlockedObjectModes.bl_idname, text="Surface", icon="SURFACE_DATA")
             sbe_surface.target_object_mode = "EDIT"
+            sbe_surface.target_object_sub_mode = ""
             sbe_surface.target_object_type = "SURFACE"
 
             sbe_meta: Alx_OT_operator_UnlockedObjectModes = selection_bulk_edit_box_M.row().operator(
                 Alx_OT_operator_UnlockedObjectModes.bl_idname, text="Meta", icon="META_DATA")
             sbe_meta.target_object_mode = "EDIT"
+            sbe_meta.target_object_sub_mode = ""
             sbe_meta.target_object_type = "META"
 
             sbe_text: Alx_OT_operator_UnlockedObjectModes = selection_bulk_edit_box_M.row().operator(
                 Alx_OT_operator_UnlockedObjectModes.bl_idname, text="Text", icon="FILE_FONT")
             sbe_text.target_object_mode = "EDIT"
+            sbe_text.target_object_sub_mode = ""
             sbe_text.target_object_type = "FONT"
 
             sbe_lattice: Alx_OT_operator_UnlockedObjectModes = selection_bulk_edit_box_M.row().operator(
                 Alx_OT_operator_UnlockedObjectModes.bl_idname, text="Lattice", icon="LATTICE_DATA")
             sbe_lattice.target_object_mode = "EDIT"
+            sbe_lattice.target_object_sub_mode = ""
             sbe_lattice.target_object_type = "LATTICE"
 
             gpenci_column = selection_bulk_edit_box_R.column()
@@ -190,25 +194,14 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                         )
                                     )
 
-                                    if (len(armature_selection_override) <= 0):
-                                        return {"CANCELLED"}
+                                    for armature in armature_selection_override:
+                                        armature.hide_set(False, view_layer=context.view_layer)
+                                        armature.hide_viewport = False
+                                        armature.select_set(True)
 
-                                    if (context.active_object.type == "MESH"):
-                                        reference_object = context.active_object
-
-                                        context.view_layer.objects.active = reference_object.find_armature()
-
-                                        for armature_object in armature_selection_override:
-                                            armature_object.select_set(True)
-
-                                    if (context.active_object.type == "ARMATURE"):
-                                        reference_object = context.active_object
-
-                                        reference_object.select_set(True)
-                                        context.view_layer.objects.active = reference_object
-
-                                        for armature_object in armature_selection_override:
-                                            armature_object.select_set(True)
+                                    else:
+                                        if (context.active_object.type != "ARMATURE"):
+                                            context.view_layer.objects.active = armature
 
                                     if (len(context.selected_objects) > 0) and (context.active_object.type == "ARMATURE"):
                                         bpy.ops.object.mode_set(mode="EDIT")
@@ -243,24 +236,19 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                             context.view_layer.objects.active = selected_object
 
                                     if (len(context.selected_objects) > 0) and (context.active_object.type == "META"):
-                                        bpy.ops.object.mode_set_with_submode(
-                                            mode="EDIT",
-                                            mesh_select_mode=set([self.target_object_sub_mode])
-                                        )
+                                        bpy.ops.object.mode_set(mode="EDIT")
 
                                 return {"FINISHED"}
 
                             case "FONT":
                                 if (self.target_object_sub_mode == ""):
                                     for selected_object in context.selected_objects:
-                                        if (context.active_object is not None and context.active_object.type != "FONT"):
-                                            context.view_layer.objects.active = selected_object
+                                        context.view_layer.objects.active = selected_object
+                                        if (context.active_object.type == "FONT"):
+                                            break
 
                                     if (len(context.selected_objects) > 0) and (context.active_object.type == "FONT"):
-                                        bpy.ops.object.mode_set_with_submode(
-                                            mode="EDIT",
-                                            mesh_select_mode=set([self.target_object_sub_mode])
-                                        )
+                                        bpy.ops.object.mode_set(mode="EDIT")
 
                                 return {"FINISHED"}
 
