@@ -6,7 +6,7 @@ from ..Definitions.AlxTypesDefinition import TD_object_types
 class Alx_MT_MenuPie_UnlockedObjectModes(bpy.types.Menu):
     """"""
 
-    bl_label = "unlocked object modes"
+    bl_label = ""
     bl_idname = "ALX_MT_menu_pie_unlocked_object_modes"
 
     @classmethod
@@ -156,14 +156,12 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
 
     def execute(self, context: bpy.types.Context):
         match self.target_object_mode:
-            # region
+
             case "OBJECT":
                 if (context.mode != "OBJECT"):
                     bpy.ops.object.mode_set(mode="OBJECT")
                 return {"FINISHED"}
-            # endregion
 
-            # region
             case "EDIT":
                 if (context.mode != "OBJECT"):
                     bpy.ops.object.mode_set(mode="OBJECT")
@@ -171,7 +169,9 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                 if (len(context.selected_objects) > 0):
                     if (self.target_object_type in TD_object_types):
                         match self.target_object_type:
+
                             case "MESH":
+                                # region
                                 if (self.target_object_sub_mode in ["VERT", "EDGE", "FACE"]):
                                     for selected_object in context.selected_objects:
                                         if (context.active_object is not None and context.active_object.type != "MESH"):
@@ -183,8 +183,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                             mesh_select_mode=set([self.target_object_sub_mode])
                                         )
                                 return {"FINISHED"}
+                                # endregion
 
                             case "ARMATURE":
+                                # region
                                 if (self.target_object_sub_mode == ""):
                                     armature_selection_override = list(
                                         filter(
@@ -207,8 +209,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                     if (len(context.selected_objects) > 0) and (context.active_object.type == "ARMATURE"):
                                         bpy.ops.object.mode_set(mode="EDIT")
                                     return {"FINISHED"}
+                                # endregion
 
                             case "CURVE":
+                                # region
                                 if (self.target_object_sub_mode == ""):
                                     for selected_object in context.selected_objects:
                                         context.view_layer.objects.active = selected_object
@@ -220,8 +224,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                         bpy.ops.object.mode_set(mode="EDIT")
 
                                 return {"FINISHED"}
+                                # endregion
 
                             case "SURFACE":
+                                # region
                                 if (self.target_object_sub_mode == ""):
                                     for selected_object in context.selected_objects:
                                         context.view_layer.objects.active = selected_object
@@ -233,8 +239,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                         bpy.ops.object.mode_set(mode="EDIT")
 
                                 return {"FINISHED"}
+                                # endregion
 
                             case "META":
+                                # region
                                 if (self.target_object_sub_mode == ""):
                                     for selected_object in context.selected_objects:
                                         context.view_layer.objects.active = selected_object
@@ -246,8 +254,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                         bpy.ops.object.mode_set(mode="EDIT")
 
                                 return {"FINISHED"}
+                                # endregion
 
                             case "FONT":
+                                # region
                                 if (self.target_object_sub_mode == ""):
                                     for selected_object in context.selected_objects:
                                         context.view_layer.objects.active = selected_object
@@ -259,8 +269,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                         bpy.ops.object.mode_set(mode="EDIT")
 
                                 return {"FINISHED"}
+                                # endregion
 
                             case "LATTICE":
+                                # region
                                 if (self.target_object_sub_mode == ""):
                                     for selected_object in context.selected_objects:
                                         context.view_layer.objects.active = selected_object
@@ -272,8 +284,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                         bpy.ops.object.mode_set(mode="EDIT")
 
                                 return {"FINISHED"}
+                                # endregion
 
                             case "GPENCIL":
+                                # region
                                 if (bpy.app.version[:2] in {(4, 0), (4, 1), (4, 2)}):
                                     if (self.target_object_sub_mode in ["POINT", "STROKE", "SEGMENT"]):
                                         for selected_object in context.selected_objects:
@@ -299,12 +313,12 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                                             context.scene.tool_settings.gpencil_selectmode_edit = self.target_object_sub_mode
 
                                 return {"FINISHED"}
+                                # endregion
 
                 return {"FINISHED"}
-            # endregion
 
-            # region
             case "SCULPT":
+                # region
                 if (context.mode != "OBJECT"):
                     bpy.ops.object.mode_set(mode="OBJECT")
 
@@ -323,10 +337,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                     bpy.ops.object.mode_set(mode="SCULPT")
 
                 return {"FINISHED"}
-            # endregion
+                # endregion
 
-            # region
             case "POSE":
+                # region
                 if (context.mode != "OBJECT"):
                     bpy.ops.object.mode_set(mode="OBJECT")
 
@@ -355,10 +369,10 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                         bpy.ops.object.mode_set(mode="POSE")
 
                 return {"FINISHED"}
-            # endregion
+                # endregion
 
-            # region
             case "PAINT_WEIGHT":
+                # region
                 if (context.mode != "OBJECT"):
                     bpy.ops.object.mode_set(mode="OBJECT")
 
@@ -394,6 +408,6 @@ class Alx_OT_operator_UnlockedObjectModes(bpy.types.Operator):
                         bpy.ops.object.mode_set(mode="WEIGHT_PAINT")
 
                 return {"FINISHED"}
-            # endregion
+                # endregion
 
         return {"FINISHED"}
