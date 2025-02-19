@@ -1,8 +1,8 @@
 import bpy
 import rna_keymap_ui
 
-from .reorganize_later import AlxKeymapUtils
 from .modules.addon_updater_system.addon_updater import update_settings_ui
+from .reorganize_later import AlxKeymapUtils
 
 
 # @make_annotations
@@ -61,7 +61,6 @@ class AlxOverHaul_AddonPreferences(bpy.types.AddonPreferences):
             keybinds_column.prop(self, "View3d_Rotate_Use_GRLess")
             keybinds_column.prop(self, "View3d_Zoom_Use_GRLess")
 
-            keymap: bpy.types.KeyMap
             for keymap, keymap_item in AlxKeymapUtils.AlxAddonKeymaps:
                 rna_keymap_ui.draw_kmi([], keymap_configs, keymap, keymap_item, keybinds_column, 0)
 

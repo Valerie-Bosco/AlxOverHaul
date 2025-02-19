@@ -12,3 +12,12 @@ TD_modifier_deform_types: Final[str] = ["ARMATURE", "CAST", "CURVE", "DISPLACE",
                                         "MESH_DEFORM", "SHRINKWRAP", "SIMPLE_DEFORM", "SMOOTH", "CORRECTIVE_SMOOTH", "LAPLACIANSMOOTH", "SURFACE_DEFORM", "WARP", "WAVE"]
 TD_modifier_physics_types: Final[str] = ["CLOTH", "COLLISION", "DYNAMIC_PAINT",
                                          "EXPLODE", "FLUID", "OCEAN", "PARTICLE_INSTANCE", "PARTICLE_SYSTEM", "SOFT_BODY"]
+
+TD_UNITY_humanoid_bones_names: Final[str] = ["Hips", "LeftUpperLeg", "RightUpperLeg", "LeftLowerLeg", "RightLowerLeg", "LeftFoot", "RightFoot", "Spine", "Chest", "UpperChest",
+                                             "Neck", "Head", "LeftShoulder", "RightShoulder", "LeftUpperArm", "RightUpperArm", "LeftLowerArm", "RightLowerArm", "LeftHand",
+                                             "RightHand", "LeftToes", "RightToes", "LeftEye", "RightEye", "Jaw", "LeftThumbProximal", "LeftThumbIntermediate", "LeftThumbDistal",
+                                             "LeftIndexProximal", "LeftIndexIntermediate", "LeftIndexDistal", "LeftMiddleProximal", "LeftMiddleIntermediate", "LeftMiddleDistal",
+                                             "LeftRingProximal", "LeftRingIntermediate", "LeftRingDistal", "LeftLittleProximal", "LeftLittleIntermediate", "LeftLittleDistal",
+                                             "RightThumbProximal", "RightThumbIntermediate", "RightThumbDistal", "RightIndexProximal", "RightIndexIntermediate", "RightIndexDistal",
+                                             "RightMiddleProximal", "RightMiddleIntermediate", "RightMiddleDistal", "RightRingProximal", "RightRingIntermediate", "RightRingDistal",
+                                             "RightLittleProximal", "RightLittleIntermediate", "RightLittleDistal", "LastBone"]

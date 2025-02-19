@@ -1,6 +1,6 @@
 import bpy
 
-from ..utilities.Alx_Armature_Utils import (AlxCloneIKBoneLimitOnChain,
+from ..utilities.Alx_armature_utils import (AlxCloneIKBoneLimitOnChain,
                                             AlxCloneIKSettings,
                                             Get_ActiveObject_Skeleton,
                                             Get_PoseBone_Always_Left,

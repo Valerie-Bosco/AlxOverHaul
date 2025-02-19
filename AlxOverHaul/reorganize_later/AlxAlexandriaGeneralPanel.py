@@ -7,7 +7,7 @@ from ..Definitions.AlxTypesDefinition import (TD_modifier_deform_types,
                                               TD_modifier_physics_types)
 from ..pose_tools.Alx_pose_tools import Alx_OT_Armature_Pose_SetPosePosition
 from ..UITools.Alx_OT_UI_SimpleDesigner import Alx_OT_UI_SimpleDesigner
-from ..utilities.Alx_Armature_Utils import Get_ActiveObject_Skeleton
+from ..utilities.Alx_armature_utils import Get_ActiveObject_Skeleton
 from .Alx_Alexandria_Layouts import (UIPreset_EnumButtons,
                                      UIPreset_ModifierList,
                                      UIPreset_ModifierSettings,

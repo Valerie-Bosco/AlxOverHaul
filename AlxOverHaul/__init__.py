@@ -2,6 +2,7 @@ import importlib
 
 import bpy
 
+from .interface import ALX_Shapeky_Toolset
 from .modules.addon_updater_system.addon_updater import Alx_Addon_Updater
 from .modules.Alx_Module_Manager import Alx_Module_Manager
 from .reorganize_later import (AlxAlexandriaGeneralPanel, AlxHandlers,
@@ -13,7 +14,7 @@ bl_info = {
     "author": "Valerie Bosco[Valy Arhal]",
     "description": "",
     "warning": "[Heavly Under Development] And Subject To Substantial Changes",
-    "version": (0, 7, 5),
+    "version": (0, 7, 6),
     "blender": (4, 0, 0),
     "category": "3D View",
     "location": "[Ctrl Alt A] General Menu, [Shift Alt S] Pivot Menu, [Tab] Auto Mode Pie Menu",
@@ -110,6 +111,8 @@ def register():
     module_loader.developer_register_modules(mute=False)
     addon_updater.register_addon_updater(mute=True)
 
+    bpy.types.DATA_PT_shape_keys.prepend(ALX_Shapeky_Toolset.ALX_MT_ShapeKeyToolset.draw)
+
     RegisterProperties()
     RegisterHandlers()
 
@@ -119,6 +122,8 @@ def register():
 def unregister():
     module_loader.developer_unregister_modules()
     addon_updater.unregister_addon_updater()
+
+    bpy.types.DATA_PT_shape_keys.remove(ALX_Shapeky_Toolset.ALX_MT_ShapeKeyToolset.draw)
 
     UnRegisterProperties()
     UnRegisterHandlers()

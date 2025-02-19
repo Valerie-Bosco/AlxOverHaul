@@ -1,7 +1,7 @@
 import bpy
 
 from ..modules.Alx_Module_Manager_Utils import define_dependency
-from ..utilities.Alx_Armature_Utils import COMPARE_VertexGroups_BoneNames
+from ..utilities.Alx_armature_utils import COMPARE_VertexGroups_BoneNames
 from .ALX_Object_Properties import ALX_PT_ObjectProperties
 
 

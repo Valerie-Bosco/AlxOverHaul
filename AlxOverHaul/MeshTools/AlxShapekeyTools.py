@@ -1,24 +1,24 @@
-import bpy
 import bmesh
+import bpy
 from mathutils import kdtree
 
 vrm0_blend_shapes_names = [
     "Neutral",
     "A",
-    "I", 
-    "U", 
-    "E", 
+    "I",
+    "U",
+    "E",
     "O",
     "Blink",
-    "Blink_L", 
+    "Blink_L",
     "Blink_R",
-    "Joy", 
-    "Angry", 
-    "Sorrow", 
+    "Joy",
+    "Angry",
+    "Sorrow",
     "Fun",
-    "LookUp", 
-    "LookDown", 
-    "LookLeft", 
+    "LookUp",
+    "LookDown",
+    "LookLeft",
     "LookRight"
 ]
 
@@ -75,7 +75,56 @@ arkit_blend_shape_names = [
     "noseSneerLeft",
     "noseSneerRight",
     "tongueOut"
-    ]
+]
+
+
+class ALX_OT_Shapekey_RemoveUnlockedShapekey(bpy.types.Operator):
+    """"""
+
+    bl_label = ""
+    bl_idname = "alx.operator_shapekey_remove_unlocked_shapekey"
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(self, context: bpy.types.Context):
+        return (context.active_object is not None) and (context.active_object.type == "MESH")
+
+    def execute(self, context: bpy.types.Context):
+        if (context.active_object is not None) and (context.active_object.type == "MESH"):
+            mesh_object: bpy.types.Object = context.active_object
+            keyblocks = mesh_object.data.shape_keys.key_blocks
+            [mesh_object.shape_key_remove(shapekey)
+             for shapekey in keyblocks
+             if ((shapekey.lock_shape == False) and
+                 (shapekey.name != "Basis"))
+             ]
+
+        return {"FINISHED"}
+
+
+class ALX_OT_Shapekey_RemoveNameDuplicateShapekey(bpy.types.Operator):
+    """"""
+
+    bl_label = ""
+    bl_idname = "alx.operator_shapekey_remove_name_duplicate_shapekey"
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(self, context: bpy.types.Context):
+        return (context.active_object is not None) and (context.active_object.type == "MESH")
+
+    def execute(self, context: bpy.types.Context):
+        if (context.active_object is not None) and (context.active_object.type == "MESH"):
+            mesh_object: bpy.types.Object = context.active_object
+            keyblocks = mesh_object.data.shape_keys.key_blocks
+            [mesh_object.shape_key_remove(shapekey)
+             for shapekey in keyblocks
+             if ((shapekey.lock_shape == False) and
+                 (keyblocks.keys().count(shapekey.name)))
+             ]
+
+        return {"FINISHED"}
+
 
 class Alx_OT_Shapekey_TransferShapekeysToTarget(bpy.types.Operator):
     """"""
@@ -84,23 +133,21 @@ class Alx_OT_Shapekey_TransferShapekeysToTarget(bpy.types.Operator):
     bl_idname = "alx.operator_shapekey_transfer_shapekeys_to_target"
     bl_options = {"REGISTER", "UNDO"}
 
+    source_mesh: bpy.types.Mesh = None
+    source_bmesh: bmesh.types.BMesh = None
 
-    source_mesh : bpy.types.Mesh = None
-    source_bmesh : bmesh.types.BMesh = None
+    target_mesh: bpy.types.Mesh = None
+    target_bmesh: bmesh.types.BMesh = None
 
-    target_mesh : bpy.types.Mesh = None
-    target_bmesh : bmesh.types.BMesh = None
+    shapekey_source_kdtree: kdtree.KDTree
+    shapekey_target_kdtree: kdtree.KDTree
 
-    shapekey_source_kdtree : kdtree.KDTree
-    shapekey_target_kdtree : kdtree.KDTree
-
-    #margin_of_error : bpy.props.FloatProperty(name="margin of error", subtype="DISTANCE") #type:ignore
-
+    # margin_of_error : bpy.props.FloatProperty(name="margin of error", subtype="DISTANCE") #type:ignore
 
     def auto_retrieve_shapekeys(self, context: bpy.types.Context):
         unique_shapekey_set = {("NONE", "none", "")}
-        
-        shape_key_object : bpy.types.Object = context.window_manager.alx_session_properties.shapekey_transfer_source_object
+
+        shape_key_object: bpy.types.Object = context.window_manager.alx_session_properties.shapekey_transfer_source_object
 
         if (shape_key_object is not None) and (shape_key_object.data.shape_keys is not None) and (len(shape_key_object.data.shape_keys.key_blocks) != 0):
             key_blocks = shape_key_object.data.shape_keys.key_blocks
@@ -111,13 +158,11 @@ class Alx_OT_Shapekey_TransferShapekeysToTarget(bpy.types.Operator):
 
         return unique_shapekey_set
 
-    shapekey_source_name : bpy.props.EnumProperty(name="source shapekeys", items=auto_retrieve_shapekeys) #type:ignore
-
+    shapekey_source_name: bpy.props.EnumProperty(name="source shapekeys", items=auto_retrieve_shapekeys)  # type:ignore
 
     @classmethod
     def poll(self, context: bpy.types.Context):
         return True
-
 
     def execute(self, context: bpy.types.Context):
         properties = context.window_manager.alx_session_properties
@@ -125,8 +170,8 @@ class Alx_OT_Shapekey_TransferShapekeysToTarget(bpy.types.Operator):
         if (self.shapekey_source_name not in ["", "NONE"]):
 
             if (properties.shapekey_transfer_source_object is not None) and (properties.shapekey_transfer_source_object.type == "MESH"):
-                source_object : bpy.types.Object = properties.shapekey_transfer_source_object
-                self.source_mesh : bpy.types.Mesh = source_object.data
+                source_object: bpy.types.Object = properties.shapekey_transfer_source_object
+                self.source_mesh: bpy.types.Mesh = source_object.data
 
                 if (self.source_bmesh is None) or (not self.source_bmesh.is_valid):
                     if (self.source_bmesh is None):
@@ -137,7 +182,6 @@ class Alx_OT_Shapekey_TransferShapekeysToTarget(bpy.types.Operator):
                 self.source_bmesh.edges.ensure_lookup_table()
                 self.source_bmesh.faces.ensure_lookup_table()
 
-
                 source_tree_size = len(self.source_bmesh.verts)
                 self.shapekey_source_kdtree = kdtree.KDTree(source_tree_size)
 
@@ -146,10 +190,9 @@ class Alx_OT_Shapekey_TransferShapekeysToTarget(bpy.types.Operator):
 
                 self.shapekey_source_kdtree.balance()
 
-
             if (properties.shapekey_transfer_target_object is not None) and (properties.shapekey_transfer_target_object.type == "MESH"):
-                target_object : bpy.types.Object = properties.shapekey_transfer_target_object
-                self.target_mesh : bpy.types.Mesh = target_object.data
+                target_object: bpy.types.Object = properties.shapekey_transfer_target_object
+                self.target_mesh: bpy.types.Mesh = target_object.data
 
                 if (self.target_bmesh is None) or (not self.target_bmesh.is_valid):
                     if (self.target_bmesh is None):
@@ -160,7 +203,6 @@ class Alx_OT_Shapekey_TransferShapekeysToTarget(bpy.types.Operator):
                 self.target_bmesh.edges.ensure_lookup_table()
                 self.target_bmesh.faces.ensure_lookup_table()
 
-
                 target_tree_size = len(self.target_bmesh.verts)
                 self.shapekey_target_kdtree = kdtree.KDTree(target_tree_size)
 
@@ -169,9 +211,7 @@ class Alx_OT_Shapekey_TransferShapekeysToTarget(bpy.types.Operator):
 
                 self.shapekey_target_kdtree.balance()
 
-
             if (self.shapekey_source_kdtree is not None) and (self.shapekey_target_kdtree is not None):
-
 
                 shapekey_layer = self.source_bmesh.verts.layers.shape.get(self.shapekey_source_name)
 
@@ -180,18 +220,17 @@ class Alx_OT_Shapekey_TransferShapekeysToTarget(bpy.types.Operator):
                 for source_vert in self.source_bmesh.verts:
                     original_co = source_vert.co
                     co, target_index, distance = self.shapekey_target_kdtree.find(original_co)
-                    
-                    vert_co = source_vert[shapekey_layer]
-                    shape_key_co_set.update({target_index : vert_co})
 
+                    vert_co = source_vert[shapekey_layer]
+                    shape_key_co_set.update({target_index: vert_co})
 
                 if (self.target_bmesh.verts.layers.shape.get(self.shapekey_source_name) is None):
                     properties.shapekey_transfer_target_object.shape_key_add(name=self.shapekey_source_name)
 
                 self.target_bmesh.free()
 
-                target_object : bpy.types.Object = properties.shapekey_transfer_target_object
-                self.target_mesh : bpy.types.Mesh = target_object.data
+                target_object: bpy.types.Object = properties.shapekey_transfer_target_object
+                self.target_mesh: bpy.types.Mesh = target_object.data
 
                 if (self.target_bmesh is None) or (not self.target_bmesh.is_valid):
                     self.target_bmesh = bmesh.new()
@@ -214,19 +253,16 @@ class Alx_OT_Shapekey_TransferShapekeysToTarget(bpy.types.Operator):
             self.report({"ERROR"}, message="selected shapekey layer is invalid")
 
         return {"FINISHED"}
-    
 
     def draw(self, context: bpy.types.Context):
-        properties = context.window_manager.alx_session_properties 
+        properties = context.window_manager.alx_session_properties
 
         self.layout.prop(properties, "shapekey_transfer_source_object", text="source")
         self.layout.prop(properties, "shapekey_transfer_target_object", text="target")
         self.layout.prop(self, "shapekey_source_name", text="source")
-        
 
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width=300)
-
 
 
 class Alx_OT_Shapekey_AddEmptyShapeKeys(bpy.types.Operator):
@@ -236,21 +272,21 @@ class Alx_OT_Shapekey_AddEmptyShapeKeys(bpy.types.Operator):
     bl_idname = "alx.operator_shapekey_vrm_add_empty_shape_keys"
     bl_options = {"REGISTER", "UNDO"}
 
-    blendshape_target_type : bpy.props.EnumProperty(name="blendshapes type:", default="VRM0", items=[
+    blendshape_target_type: bpy.props.EnumProperty(name="blendshapes type:", default="VRM0", items=[
         ("VRM0", "VRM 0", "", 1),
-        ("ARKIT", "ARKit", "", 1<<1)
-    ]) #type:ignore
+        ("ARKIT", "ARKit", "", 1 << 1)
+    ])  # type:ignore
 
     @classmethod
     def poll(self, context: bpy.types.Context):
         return (context.object is not None) and (context.object.type == "MESH")
-    
+
     def execute(self, context: bpy.types.Context):
         if (context.object is not None) and (context.object.type == "MESH"):
             object = context.object
-            mesh : bpy.types.Mesh = object.data
+            mesh: bpy.types.Mesh = object.data
 
-            blendshapes_target_type_names : list[str]
+            blendshapes_target_type_names: list[str]
 
             match self.blendshape_target_type:
                 case "VRM0":
@@ -272,6 +308,6 @@ class Alx_OT_Shapekey_AddEmptyShapeKeys(bpy.types.Operator):
         else:
             return {"CANCELLED"}
         return {"FINISHED"}
-    
+
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
         return context.window_manager.invoke_props_dialog(self, width=300)
