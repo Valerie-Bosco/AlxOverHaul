@@ -14,7 +14,7 @@ bl_info = {
     "author": "Valerie Bosco[Valy Arhal]",
     "description": "",
     "warning": "[Heavly Under Development] And Subject To Substantial Changes",
-    "version": (0, 7, 6),
+    "version": (0, 7, 7),
     "blender": (4, 0, 0),
     "category": "3D View",
     "location": "[Ctrl Alt A] General Menu, [Shift Alt S] Pivot Menu, [Tab] Auto Mode Pie Menu",
