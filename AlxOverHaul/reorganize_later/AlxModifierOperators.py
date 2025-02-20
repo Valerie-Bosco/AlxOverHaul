@@ -1,5 +1,6 @@
 import bpy
 
+
 def AlxRetirive_ModifierList(TargetObejct, TargetType):
     mod_type_list = bpy.types.Modifier.bl_rna.properties['type'].enum_items
 
@@ -8,6 +9,7 @@ def AlxRetirive_ModifierList(TargetObejct, TargetType):
 
     return None
 
+
 class Alx_OT_Modifier_ManageOnSelected(bpy.types.Operator):
     """"""
 
@@ -15,23 +17,23 @@ class Alx_OT_Modifier_ManageOnSelected(bpy.types.Operator):
     bl_idname = "alx.operator_modifier_manage_on_selected"
     bl_options = {"INTERNAL", "REGISTER", "UNDO"}
 
-    object_pointer_reference : bpy.props.StringProperty(name="", default="", options={"HIDDEN"}) #type:ignore
-    object_modifier_index : bpy.props.IntProperty(name="", default=0, options={"HIDDEN"}) #type:ignore
+    object_pointer_reference: bpy.props.StringProperty(name="", default="", options={"HIDDEN"})  # type:ignore
+    object_modifier_index: bpy.props.IntProperty(name="", default=0, options={"HIDDEN"})  # type:ignore
 
-    modifier : bpy.types.Modifier = None
+    modifier: bpy.types.Modifier = None
 
-    modifier_type : bpy.props.StringProperty(name="", default="NONE", options={"HIDDEN"}) #type:ignore
+    modifier_type: bpy.props.StringProperty(name="", default="NONE", options={"HIDDEN"})  # type:ignore
 
-    create_modifier : bpy.props.BoolProperty(name="", default=False, options={"HIDDEN"}) #type:ignore
-    apply_modifier : bpy.props.BoolProperty(name="", default=False, options={"HIDDEN"})  #type:ignore
-    remove_modifier : bpy.props.BoolProperty(name="", default=False, options={"HIDDEN"}) #type:ignore
-    
-    move_modifier_up : bpy.props.BoolProperty(name="", default=False, options={"HIDDEN"}) #type:ignore
-    move_modifier_down : bpy.props.BoolProperty(name="", default=False, options={"HIDDEN"}) #type:ignore
+    create_modifier: bpy.props.BoolProperty(name="", default=False, options={"HIDDEN"})  # type:ignore
+    apply_modifier: bpy.props.BoolProperty(name="", default=False, options={"HIDDEN"})  # type:ignore
+    remove_modifier: bpy.props.BoolProperty(name="", default=False, options={"HIDDEN"})  # type:ignore
+
+    move_modifier_up: bpy.props.BoolProperty(name="", default=False, options={"HIDDEN"})  # type:ignore
+    move_modifier_down: bpy.props.BoolProperty(name="", default=False, options={"HIDDEN"})  # type:ignore
 
     @classmethod
     def poll(self, context: bpy.types.Context):
-        return context.area.type == "VIEW_3D"
+        return True
 
     def execute(self, context):
         if (self.modifier is None):
@@ -49,7 +51,7 @@ class Alx_OT_Modifier_ManageOnSelected(bpy.types.Operator):
                                     self.modifier.segments = 1
                                     self.modifier.miter_outer = "MITER_ARC"
                                     self.modifier.harden_normals = True
-                                
+
                                 case "SUBSURF":
                                     self.modifier.render_levels = 1
                                     self.modifier.quality = 6
@@ -58,8 +60,7 @@ class Alx_OT_Modifier_ManageOnSelected(bpy.types.Operator):
 
                 return {"FINISHED"}
 
-
-            Object : bpy.types.Object = bpy.data.objects.get(self.object_pointer_reference)
+            Object: bpy.types.Object = bpy.data.objects.get(self.object_pointer_reference)
 
             if (self.apply_modifier == True):
                 if (Object is not None):
@@ -68,7 +69,6 @@ class Alx_OT_Modifier_ManageOnSelected(bpy.types.Operator):
                     bpy.ops.object.modifier_apply(modifier=Object.modifiers[self.object_modifier_index].name)
                     bpy.ops.object.mode_set(mode=_mode)
                 return {"FINISHED"}
-
 
             if (self.remove_modifier == True):
                 if (Object is not None):
@@ -82,7 +82,6 @@ class Alx_OT_Modifier_ManageOnSelected(bpy.types.Operator):
                         Object.modifiers.move(self.object_modifier_index, self.object_modifier_index - 1)
                 return {"FINISHED"}
 
-
             if (self.move_modifier_up == False) and (self.move_modifier_down == True):
                 if (Object is not None):
                     if ((self.object_modifier_index + 1) < len(Object.modifiers)):
@@ -93,6 +92,7 @@ class Alx_OT_Modifier_ManageOnSelected(bpy.types.Operator):
             print(error)
 
         return {"FINISHED"}
+
 
 class Alx_OT_Modifier_ApplyReplace(bpy.types.Operator):
     """"""
@@ -106,12 +106,12 @@ class Alx_OT_Modifier_ApplyReplace(bpy.types.Operator):
             modifier_list = [(modifier.type, modifier.name, "") for modifier in context.object.modifiers]
         return modifier_list
 
-    replace_type : bpy.props.EnumProperty(name="Modifier", items=auto_object_modifier) #type:ignore
+    replace_type: bpy.props.EnumProperty(name="Modifier", items=auto_object_modifier)  # type:ignore
 
     @classmethod
     def poll(self, context: bpy.types.Context):
         return True
-    
+
     def execute(self, context: bpy.types.Context):
         try:
             context.selectable_objects[0]
@@ -150,10 +150,11 @@ class Alx_OT_Modifier_ApplyReplace(bpy.types.Operator):
             print(error)
 
         return {"FINISHED"}
-    
+
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width=300)
-    
+
+
 class Alx_OT_Modifier_BatchVisibility(bpy.types.Operator):
     """"""
 
@@ -170,11 +171,10 @@ class Alx_OT_Modifier_BatchVisibility(bpy.types.Operator):
 
         return unique_modifier_type_set
 
-    modifier_type : bpy.props.EnumProperty(name="modifier type", items=auto_retrieve_selection_modifier) #type:ignore
-    show_edit : bpy.props.BoolProperty(name="edit", default=False) #type:ignore
-    show_viewport : bpy.props.BoolProperty(name="viewport", default=False) #type:ignore
-    show_render : bpy.props.BoolProperty(name="render", default=False) #type:ignore
-
+    modifier_type: bpy.props.EnumProperty(name="modifier type", items=auto_retrieve_selection_modifier)  # type:ignore
+    show_edit: bpy.props.BoolProperty(name="edit", default=False)  # type:ignore
+    show_viewport: bpy.props.BoolProperty(name="viewport", default=False)  # type:ignore
+    show_render: bpy.props.BoolProperty(name="render", default=False)  # type:ignore
 
     @classmethod
     def poll(self, context: bpy.types.Context):
@@ -189,9 +189,8 @@ class Alx_OT_Modifier_BatchVisibility(bpy.types.Operator):
                     mod.show_in_editmode = self.show_edit
                     mod.show_viewport = self.show_viewport
                     mod.show_render = self.show_render
-        
-        return {"FINISHED"}
 
+        return {"FINISHED"}
 
     def draw(self, context: bpy.types.Context):
         self.layout.row().prop(self, "modifier_type", text="modifier")
@@ -200,6 +199,26 @@ class Alx_OT_Modifier_BatchVisibility(bpy.types.Operator):
         row.prop(self, "show_viewport", toggle=True, icon="RESTRICT_VIEW_OFF")
         row.prop(self, "show_render", toggle=True, icon="RESTRICT_RENDER_OFF")
 
-
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width=300)
+
+
+class Alx_PT_Operator_ModifierChangeSettings(bpy.types.Operator):
+    """"""
+
+    bl_label = ""
+    bl_idname = "alx.operator_modifier_change_settings"
+
+    object_name: bpy.props.StringProperty()  # type:ignore
+    modifier_name: bpy.props.StringProperty()  # type:ignore
+
+    @classmethod
+    def poll(self, context: bpy.types.Context):
+        return True
+
+    def execute(self, context: bpy.types.Context):
+        Object = context.scene.objects.get(self.object_name)
+        Modifier = Object.alx_modifier_collection.get(
+            f"{self.object_name}_{self.modifier_name}")
+        Modifier.show_options = not Modifier.show_options
+        return {"FINISHED"}

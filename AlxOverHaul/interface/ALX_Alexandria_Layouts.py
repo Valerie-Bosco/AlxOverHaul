@@ -1,4 +1,10 @@
+
 import bpy
+
+from AlxOverHaul.reorganize_later.AlxModifierOperators import (
+    Alx_OT_Modifier_ManageOnSelected, Alx_PT_Operator_ModifierChangeSettings)
+from AlxOverHaul.reorganize_later.AlxProperties import \
+    Alx_PG_PropertyGroup_ObjectSelectionListItem
 
 from ..utilities.AlxUtilities import get_enum_property_items
 
@@ -235,7 +241,7 @@ def UIPreset_ModifierSettings(layout: bpy.types.UILayout = None, modifier: bpy.t
             row.prop(modifier, "mid_level")
 
 
-def UIPreset_ModifierList(layout: bpy.types.UILayout = None, modifiers_types: list[list[str, list[str]]] = [], modifier_creation_operator: bpy.types.Operator = None):
+def UIPreset_ModifierCreateList(layout: bpy.types.UILayout = None, modifiers_types: list[list[str, list[str]]] = [], modifier_creation_operator: bpy.types.Operator = None):
     """
     modifiers_types : [ [label_name_1, [modifier_types_list_1]], [label_name_2, [modifier_types_list_2]] ]
     """
@@ -255,6 +261,154 @@ def UIPreset_ModifierList(layout: bpy.types.UILayout = None, modifiers_types: li
             modifier_button.modifier_type = mod_id
             modifier_button.create_modifier = True
             modifier_button.remove_modifier = False
+
+# region Modifier
+
+
+class Alx_UL_UIList_ObjectSelectionModifiers(bpy.types.UIList):
+    """"""
+
+    bl_idname = "ALX_UL_ui_list_object_selection_modifiers"
+
+    def draw_item(self, context: bpy.types.Context, layout: bpy.types.UILayout, data: bpy.types.AnyType, item: Alx_PG_PropertyGroup_ObjectSelectionListItem, icon: int, active_data: bpy.types.AnyType, active_property: str, index: int = 0, flt_flag: int = 0):
+
+        self.use_filter_show = True
+
+        item_object: bpy.types.Object = item.ObjectPointer
+
+        object_slot_layout = layout.box()
+
+        object_header = object_slot_layout.row()
+        object_header.prop(
+            item_object,
+            "alx_modifier_expand_settings",
+            text="",
+            icon="TRIA_DOWN" if item_object.alx_modifier_expand_settings == True else "TRIA_RIGHT",
+            emboss=False
+        )
+        object_header.label(text=item_object.name)
+        if (item_object.type == "MESH") and (item_object.data.shape_keys is not None):
+            object_header.label(text="MESH HAS SHAPE-KEYS", icon="WARNING_LARGE")
+
+        modifier_items_layout = object_slot_layout.row()
+        if (item_object.alx_modifier_expand_settings == True):
+            modifier_items_layout.separator()
+            modifier_layout = modifier_items_layout.column()
+
+            for raw_object_modifier in item_object.modifiers:
+                modifier_slots = modifier_layout.column()
+
+                modifier_header = modifier_slots.row(align=True)
+
+                icon_name = bpy.types.Modifier.bl_rna.properties['type'].enum_items.get(raw_object_modifier.type).icon
+                show_options = item_object.alx_modifier_collection.get(f"{item_object.name}_{raw_object_modifier.name}").show_options
+
+                modifier_change_settings = modifier_header.operator(
+                    Alx_PT_Operator_ModifierChangeSettings.bl_idname,
+                    icon="TRIA_DOWN" if (show_options) else "TRIA_RIGHT",
+                    emboss=False,
+                    depress=show_options
+                )
+                modifier_change_settings.object_name = item_object.name
+                modifier_change_settings.modifier_name = raw_object_modifier.name
+
+                modifier_delete_button: Alx_OT_Modifier_ManageOnSelected = modifier_header.operator(
+                    Alx_OT_Modifier_ManageOnSelected.bl_idname,
+                    icon="PANEL_CLOSE",
+                    emboss=False
+                )
+                modifier_delete_button.object_pointer_reference = item_object.name
+                modifier_delete_button.object_modifier_index = item_object.modifiers.find(raw_object_modifier.name)
+                modifier_delete_button.create_modifier = False
+                modifier_delete_button.apply_modifier = False
+                modifier_delete_button.remove_modifier = True
+                modifier_delete_button.move_modifier_up = False
+                modifier_delete_button.move_modifier_down = False
+
+                modifier_apply_button: Alx_OT_Modifier_ManageOnSelected = modifier_header.operator(
+                    Alx_OT_Modifier_ManageOnSelected.bl_idname, icon="FILE_TICK", emboss=False)
+                modifier_apply_button.object_pointer_reference = item_object.name
+                modifier_apply_button.object_modifier_index = item_object.modifiers.find(
+                    raw_object_modifier.name)
+                modifier_apply_button.create_modifier = False
+                modifier_apply_button.apply_modifier = True
+                modifier_apply_button.remove_modifier = False
+                modifier_apply_button.move_modifier_up = False
+                modifier_apply_button.move_modifier_down = False
+
+                if (item_object.alx_modifier_collection.get(f"{item_object.name}_{raw_object_modifier.name}").show_options == True):
+                    UIPreset_ModifierSettings(
+                        modifier_slots, raw_object_modifier, context, item_object)
+
+                modifier_header.prop(
+                    raw_object_modifier, "name", text="", icon=icon_name, emboss=True)
+
+                modifier_header.prop(raw_object_modifier,
+                                     "show_in_editmode", text="", emboss=True)
+                modifier_header.prop(raw_object_modifier,
+                                     "show_viewport", text="", emboss=True)
+                modifier_header.prop(raw_object_modifier,
+                                     "show_render", text="", emboss=True)
+
+                modifier_move_up_button: Alx_OT_Modifier_ManageOnSelected = modifier_header.operator(
+                    Alx_OT_Modifier_ManageOnSelected.bl_idname, icon="TRIA_UP")
+                modifier_move_up_button.object_pointer_reference = item_object.name
+                modifier_move_up_button.object_modifier_index = item_object.modifiers.find(
+                    raw_object_modifier.name)
+                modifier_move_up_button.create_modifier = False
+                modifier_move_up_button.apply_modifier = False
+                modifier_move_up_button.remove_modifier = False
+                modifier_move_up_button.move_modifier_up = True
+                modifier_move_up_button.move_modifier_down = False
+
+                modifier_move_down_button = modifier_header.operator(
+                    Alx_OT_Modifier_ManageOnSelected.bl_idname, icon="TRIA_DOWN")
+                modifier_move_down_button.object_pointer_reference = item_object.name
+                modifier_move_down_button.object_modifier_index = item_object.modifiers.find(
+                    raw_object_modifier.name)
+                modifier_move_down_button.create_modifier = False
+                modifier_move_down_button.apply_modifier = False
+                modifier_move_down_button.remove_modifier = False
+                modifier_move_down_button.move_modifier_up = False
+                modifier_move_down_button.move_modifier_down = True
+
+                modifier_header.prop(raw_object_modifier, "use_pin_to_last",
+                                     text="",
+                                     icon="PINNED" if raw_object_modifier.use_pin_to_last == True else "UNPINNED",
+                                     emboss=True)
+
+            object_slot_layout.separator(factor=2.0)
+
+
+def UIPreset_ModiferListWrapper(self, context):
+    layout = self.layout
+    addon_properties = context.window_manager.alx_session_properties
+    show_modifier_list = addon_properties.ui_modifier_list_wrapper_toggle_display
+
+    row = layout.row()
+    row.prop(
+        addon_properties,
+        "ui_modifier_list_wrapper_toggle_display",
+        text="ALX Modifier List",
+        icon="TRIA_DOWN" if (show_modifier_list) else "TRIA_RIGHT",
+        emboss=not show_modifier_list
+    )
+
+    if (show_modifier_list):
+        UIPreset_ModifierList(layout, context)
+
+
+def UIPreset_ModifierList(layout: bpy.types.UILayout = None, context: bpy.types.Context = bpy.context):
+
+    layout.template_list(
+        Alx_UL_UIList_ObjectSelectionModifiers.bl_idname,
+        list_id="", dataptr=context.scene,
+        propname="alx_object_selection_modifier",
+        active_dataptr=context.scene,
+        active_propname="alx_object_selection_modifier_index",
+        maxrows=3
+    )
+# endregion
 
 
 def UIPreset_EnumButtons(layout: bpy.types.UILayout = None, primary_icon: str = "NONE", data=None, data_name: str = ""):

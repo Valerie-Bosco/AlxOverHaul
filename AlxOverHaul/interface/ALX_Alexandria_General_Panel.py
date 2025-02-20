@@ -6,27 +6,23 @@ from ..Definitions.AlxTypesDefinition import (TD_modifier_deform_types,
                                               TD_modifier_modifiy_types,
                                               TD_modifier_physics_types)
 from ..pose_tools.Alx_pose_tools import Alx_OT_Armature_Pose_SetPosePosition
+from ..reorganize_later.AlxModifierOperators import (
+    Alx_OT_Modifier_ApplyReplace, Alx_OT_Modifier_BatchVisibility,
+    Alx_OT_Modifier_ManageOnSelected)
+from ..reorganize_later.AlxObjectOperator import Alx_OT_Object_UnlockedQOrigin
+from ..reorganize_later.AlxProperties import (
+    Alx_PG_PropertyGroup_ObjectSelectionListItem,
+    Alx_PG_PropertyGroup_SessionProperties)
+from ..reorganize_later.AlxVisibilityOperators import \
+    Alx_OT_Scene_VisibilityIsolator
 from ..UITools.Alx_OT_UI_SimpleDesigner import Alx_OT_UI_SimpleDesigner
 from ..utilities.Alx_armature_utils import Get_ActiveObject_Skeleton
-from .Alx_Alexandria_Layouts import (UIPreset_EnumButtons,
-                                     UIPreset_ModifierList,
-                                     UIPreset_ModifierSettings,
+from .ALX_Alexandria_Layouts import (Alx_UL_UIList_ObjectSelectionModifiers,
+                                     UIPreset_EnumButtons,
+                                     UIPreset_ModifierCreateList,
                                      UIPreset_OverlayToggles,
                                      UIPreset_PosePosition,
                                      UIPreset_VisibilityIsolator)
-from .AlxModifierOperators import (Alx_OT_Modifier_ApplyReplace,
-                                   Alx_OT_Modifier_BatchVisibility,
-                                   Alx_OT_Modifier_ManageOnSelected)
-from .AlxObjectOperator import Alx_OT_Object_UnlockedQOrigin
-from .AlxProperties import Alx_PG_PropertyGroup_SessionProperties
-from .AlxVisibilityOperators import Alx_OT_Scene_VisibilityIsolator
-
-
-class Alx_PG_PropertyGroup_ObjectSelectionListItem(bpy.types.PropertyGroup):
-    """"""
-    name: bpy.props.StringProperty()  # type:ignore
-    ObjectPointer: bpy.props.PointerProperty(
-        type=bpy.types.Object)  # type:ignore
 
 
 class Alx_UL_UIList_ObjectSelectionProperties(bpy.types.UIList):
@@ -71,134 +67,6 @@ class Alx_PG_PropertyGroup_ModifierSettings(bpy.types.PropertyGroup):
     object_modifier: bpy.props.StringProperty(
         name="", default="")  # type:ignore
     show_options: bpy.props.BoolProperty(name="", default=False)  # type:ignore
-
-
-class Alx_PT_Operator_ModifierChangeSettings(bpy.types.Operator):
-    """"""
-
-    bl_label = ""
-    bl_idname = "alx.operator_modifier_change_settings"
-
-    object_name: bpy.props.StringProperty()  # type:ignore
-    modifier_name: bpy.props.StringProperty()  # type:ignore
-
-    @classmethod
-    def poll(self, context: bpy.types.Context):
-        return True
-
-    def execute(self, context: bpy.types.Context):
-        Object = context.scene.objects.get(self.object_name)
-        Modifier = Object.alx_modifier_collection.get(
-            f"{self.object_name}_{self.modifier_name}")
-        Modifier.show_options = not Modifier.show_options
-        return {"FINISHED"}
-
-
-class Alx_UL_UIList_ObjectSelectionModifiers(bpy.types.UIList):
-    """"""
-
-    bl_idname = "ALX_UL_ui_list_object_selection_modifiers"
-
-    def draw_item(self, context: bpy.types.Context, layout: bpy.types.UILayout, data: bpy.types.AnyType, item: Alx_PG_PropertyGroup_ObjectSelectionListItem, icon: int, active_data: bpy.types.AnyType, active_property: str, index: int = 0, flt_flag: int = 0):
-
-        self.use_filter_show = True
-
-        item_slot_layout = layout.column()
-        object_layout = item_slot_layout.box().column()
-
-        object_header = object_layout.row()
-        object_header.prop(item.ObjectPointer, "alx_modifier_expand_settings", text="",
-                           icon="TRIA_DOWN" if item.ObjectPointer.alx_modifier_expand_settings == True else "TRIA_RIGHT", emboss=False)
-        object_header.label(text=item.ObjectPointer.name)
-
-        modifier_list_layout = object_layout.row()
-        modifier_list_layout.separator()
-
-        modifier_items_layout = modifier_list_layout.column()
-        if (item.ObjectPointer.alx_modifier_expand_settings == True):
-            for raw_object_modifier in item.ObjectPointer.modifiers:
-                modifier_slots = modifier_items_layout.column()
-
-                modifier_header = modifier_slots.row(align=True)
-
-                raw_object_modifier: bpy.types.Modifier
-
-                icon_name = bpy.types.Modifier.bl_rna.properties['type'].enum_items.get(
-                    raw_object_modifier.type).icon
-
-                show_options = item.ObjectPointer.alx_modifier_collection.get(
-                    f"{item.ObjectPointer.name}_{raw_object_modifier.name}").show_options
-
-                modifier_operator = modifier_header.row()
-                modifier_change_settings: Alx_PT_Operator_ModifierChangeSettings = modifier_operator.operator(
-                    Alx_PT_Operator_ModifierChangeSettings.bl_idname, icon="TRIA_DOWN" if (show_options) else "TRIA_RIGHT", emboss=False, depress=show_options)
-                modifier_change_settings.object_name = item.ObjectPointer.name
-                modifier_change_settings.modifier_name = raw_object_modifier.name
-
-                modifier_delete_button: Alx_OT_Modifier_ManageOnSelected = modifier_header.operator(
-                    Alx_OT_Modifier_ManageOnSelected.bl_idname, icon="PANEL_CLOSE", emboss=False)
-                modifier_delete_button.object_pointer_reference = item.ObjectPointer.name
-                modifier_delete_button.object_modifier_index = item.ObjectPointer.modifiers.find(
-                    raw_object_modifier.name)
-                modifier_delete_button.create_modifier = False
-                modifier_delete_button.apply_modifier = False
-                modifier_delete_button.remove_modifier = True
-                modifier_delete_button.move_modifier_up = False
-                modifier_delete_button.move_modifier_down = False
-
-                modifier_apply_button: Alx_OT_Modifier_ManageOnSelected = modifier_header.operator(
-                    Alx_OT_Modifier_ManageOnSelected.bl_idname, icon="FILE_TICK", emboss=False)
-                modifier_apply_button.object_pointer_reference = item.ObjectPointer.name
-                modifier_apply_button.object_modifier_index = item.ObjectPointer.modifiers.find(
-                    raw_object_modifier.name)
-                modifier_apply_button.create_modifier = False
-                modifier_apply_button.apply_modifier = True
-                modifier_apply_button.remove_modifier = False
-                modifier_apply_button.move_modifier_up = False
-                modifier_apply_button.move_modifier_down = False
-
-                if (item.ObjectPointer.alx_modifier_collection.get(f"{item.ObjectPointer.name}_{raw_object_modifier.name}").show_options == True):
-                    UIPreset_ModifierSettings(
-                        modifier_slots, raw_object_modifier, context, item.ObjectPointer)
-
-                modifier_header.prop(
-                    raw_object_modifier, "name", text="", icon=icon_name, emboss=True)
-
-                modifier_header.prop(raw_object_modifier,
-                                     "show_in_editmode", text="", emboss=True)
-                modifier_header.prop(raw_object_modifier,
-                                     "show_viewport", text="", emboss=True)
-                modifier_header.prop(raw_object_modifier,
-                                     "show_render", text="", emboss=True)
-
-                modifier_move_up_button: Alx_OT_Modifier_ManageOnSelected = modifier_header.operator(
-                    Alx_OT_Modifier_ManageOnSelected.bl_idname, icon="TRIA_UP")
-                modifier_move_up_button.object_pointer_reference = item.ObjectPointer.name
-                modifier_move_up_button.object_modifier_index = item.ObjectPointer.modifiers.find(
-                    raw_object_modifier.name)
-                modifier_move_up_button.create_modifier = False
-                modifier_move_up_button.apply_modifier = False
-                modifier_move_up_button.remove_modifier = False
-                modifier_move_up_button.move_modifier_up = True
-                modifier_move_up_button.move_modifier_down = False
-
-                modifier_move_down_button = modifier_header.operator(
-                    Alx_OT_Modifier_ManageOnSelected.bl_idname, icon="TRIA_DOWN")
-                modifier_move_down_button.object_pointer_reference = item.ObjectPointer.name
-                modifier_move_down_button.object_modifier_index = item.ObjectPointer.modifiers.find(
-                    raw_object_modifier.name)
-                modifier_move_down_button.create_modifier = False
-                modifier_move_down_button.apply_modifier = False
-                modifier_move_down_button.remove_modifier = False
-                modifier_move_down_button.move_modifier_up = False
-                modifier_move_down_button.move_modifier_down = True
-
-                modifier_header.prop(raw_object_modifier, "use_pin_to_last",
-                                     text="",
-                                     icon="PINNED" if raw_object_modifier.use_pin_to_last == True else "UNPINNED",
-                                     emboss=True)
-
-        item_slot_layout.separator(factor=2.0)
 
 
 class Alx_PT_Panel_AlexandriaGeneralPanel(bpy.types.Panel):
@@ -319,7 +187,7 @@ class Alx_PT_Panel_AlexandriaGeneralPanel(bpy.types.Panel):
 
             match addon_properties.alexandria_general_panel_modifier_sidetabs:
                 case "STANDARD":
-                    UIPreset_ModifierList(
+                    UIPreset_ModifierCreateList(
                         layout=side_page_layout.row(),
                         modifiers_types=[
                             ["Modify", TD_modifier_modifiy_types],
@@ -329,7 +197,7 @@ class Alx_PT_Panel_AlexandriaGeneralPanel(bpy.types.Panel):
                         modifier_creation_operator=Alx_OT_Modifier_ManageOnSelected)
 
                 case "PHYSICS":
-                    UIPreset_ModifierList(
+                    UIPreset_ModifierCreateList(
                         layout=side_page_layout.row(),
                         modifiers_types=[
                             ["Physics", TD_modifier_physics_types]

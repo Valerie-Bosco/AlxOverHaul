@@ -95,6 +95,12 @@ class Alx_PG_PropertyGroup_SessionProperties(bpy.types.PropertyGroup):
         ("PREFERENCES", "Preferences", "", "PREFERENCES", 1 << 22)
     ])  # type:ignore
 
+    operator_armature_merge_source: bpy.props.PointerProperty(type=bpy.types.Object)  # type:ignore
+
+    operator_armature_merge_target: bpy.props.PointerProperty(type=bpy.types.Object)  # type:ignore
+
+    ui_modifier_list_wrapper_toggle_display: bpy.props.BoolProperty(default=True)  # type:ignore
+
 
 class Alx_PG_VMC_SessionProperties(bpy.types.PropertyGroup):
     vmc_server_target_ip: bpy.props.StringProperty(
@@ -121,3 +127,10 @@ class Alx_Object_Selection_ListItem(bpy.types.PropertyGroup):
     ObjectPointer: bpy.props.PointerProperty(
         type=bpy.types.Object
     )  # type:ignore
+
+
+class Alx_PG_PropertyGroup_ObjectSelectionListItem(bpy.types.PropertyGroup):
+    """"""
+    name: bpy.props.StringProperty()  # type:ignore
+    ObjectPointer: bpy.props.PointerProperty(
+        type=bpy.types.Object)  # type:ignore

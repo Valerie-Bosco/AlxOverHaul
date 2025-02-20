@@ -2,11 +2,11 @@ import importlib
 
 import bpy
 
-from .interface import ALX_Shapeky_Toolset
+from .interface import ALX_Alexandria_General_Panel, ALX_Shapeky_Toolset
+from .interface.ALX_Alexandria_Layouts import UIPreset_ModiferListWrapper
 from .modules.addon_updater_system.addon_updater import Alx_Addon_Updater
 from .modules.Alx_Module_Manager import Alx_Module_Manager
-from .reorganize_later import (AlxAlexandriaGeneralPanel, AlxHandlers,
-                               AlxProperties)
+from .reorganize_later import AlxHandlers, AlxProperties
 from .UnlockedTools import AlxUnlockedModeling
 
 bl_info = {
@@ -34,12 +34,12 @@ def RegisterProperties():
         type=AlxProperties.Alx_PG_VMC_SessionProperties)
 
     bpy.types.Scene.alx_object_selection_properties = bpy.props.CollectionProperty(
-        type=AlxAlexandriaGeneralPanel.Alx_PG_PropertyGroup_ObjectSelectionListItem)
+        type=AlxProperties.Alx_PG_PropertyGroup_ObjectSelectionListItem)
     bpy.types.Scene.alx_object_selection_properties_index = bpy.props.IntProperty(
         default=0)
 
     bpy.types.Scene.alx_object_selection_modifier = bpy.props.CollectionProperty(
-        type=AlxAlexandriaGeneralPanel.Alx_PG_PropertyGroup_ObjectSelectionListItem)
+        type=AlxProperties.Alx_PG_PropertyGroup_ObjectSelectionListItem)
     bpy.types.Scene.alx_object_selection_modifier_index = bpy.props.IntProperty(
         default=0)
 
@@ -59,7 +59,7 @@ def RegisterProperties():
     bpy.types.Object.alx_modifier_expand_settings = bpy.props.BoolProperty(
         default=False)
     bpy.types.Object.alx_modifier_collection = bpy.props.CollectionProperty(
-        type=AlxAlexandriaGeneralPanel.Alx_PG_PropertyGroup_ModifierSettings)
+        type=ALX_Alexandria_General_Panel.Alx_PG_PropertyGroup_ModifierSettings)
 
 
 def UnRegisterProperties():
@@ -111,6 +111,7 @@ def register():
     module_loader.developer_register_modules(mute=False)
     addon_updater.register_addon_updater(mute=True)
 
+    bpy.types.OBJECT_PT_context_object.prepend(UIPreset_ModiferListWrapper)
     bpy.types.DATA_PT_shape_keys.prepend(ALX_Shapeky_Toolset.ALX_MT_ShapeKeyToolset.draw)
 
     RegisterProperties()
@@ -123,6 +124,7 @@ def unregister():
     module_loader.developer_unregister_modules()
     addon_updater.unregister_addon_updater()
 
+    bpy.types.OBJECT_PT_context_object.remove(UIPreset_ModiferListWrapper)
     bpy.types.DATA_PT_shape_keys.remove(ALX_Shapeky_Toolset.ALX_MT_ShapeKeyToolset.draw)
 
     UnRegisterProperties()
