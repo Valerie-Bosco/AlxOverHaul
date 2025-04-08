@@ -1,25 +1,30 @@
-from pathlib import Path
-from .AlxJson import json_serialize_keymaps
-
-
 import bpy
-from .AlxCallbacks import notify_context_mode_update, notify_workspace_tool_update
+
+from .AlxCallbacks import (notify_context_mode_update,
+                           notify_workspace_tool_update)
 from .AlxKeymapUtils import AlxCreateKeymaps
 
 
-def armature_handler_lambda():
-    pass
+@bpy.app.handlers.persistent
+def AlxMain_load_post(scene):
+    context = bpy.context
+
+    load_post_lambda(context)
 
 
 @bpy.app.handlers.persistent
 def AlxMain_depsgraph_update_post(context):
     pass
-    # json_serialize_keymaps([Path("E:\ProjectSovereign\Blender\Addon\AlxOverHaul\AlxOverHaul\keymap_json_test.json")], bpy.context.window_manager.keyconfigs.user.keymaps)
 
 
-@bpy.app.handlers.persistent
-def AlxMain_load_post(scene):
-    armature_handler_lambda()
+def load_post_lambda(context: bpy.types.Context):
+    if (hasattr(context, "preferences")) and (context.preferences is not None):
+        if (hasattr(context.preferences, "themes")) and (context.preferences.themes is not None):
+            theme = context.preferences.themes.get("Default")
+
+            if (theme is not None):
+                theme.view_3d.face_front = (0, 0, 1, 0.5)
+                theme.face_back = (1, 0, 0, 0.5)
 
 
 @bpy.app.handlers.persistent

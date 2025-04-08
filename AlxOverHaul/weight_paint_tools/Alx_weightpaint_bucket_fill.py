@@ -4,9 +4,11 @@ import bpy
 class Alx_OT_WeightPaint_BucketFill(bpy.types.Operator):
     """"""
 
-    bl_label = "weight paint - bucket fill"
+    bl_label = "WeightPaint - Bucket Fill"
     bl_idname = "alx.operator_weight_paint_bucket_fill"
     bl_options = {"REGISTER", "UNDO", "INTERNAL"}
+
+    # weight: bpy.props.FloatProperty(name="Weight" default=1.0, min=0.0, max=1.0)  # type:ignore
 
     @classmethod
     def poll(self, context: bpy.types.Context):
@@ -17,6 +19,7 @@ class Alx_OT_WeightPaint_BucketFill(bpy.types.Operator):
             wp_object = context.weight_paint_object
             if (wp_object.vertex_groups.active is not None):
                 wp_object.vertex_groups.active.add([vert.index for vert in wp_object.data.vertices], weight=1.0, type="ADD")
+
             else:
                 self.report({"INFO"}, "[object][missing] | [active][vertex group]")
         return {"FINISHED"}

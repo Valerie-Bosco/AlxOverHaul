@@ -88,7 +88,8 @@ def UnRegisterProperties():
 def RegisterHandlers():
     bpy.app.handlers.load_post.append(AlxHandlers.AlxMain_load_post)
     bpy.app.handlers.depsgraph_update_post.append(
-        AlxHandlers.AlxMain_depsgraph_update_post)
+        AlxHandlers.AlxMain_depsgraph_update_post
+    )
 
     bpy.app.handlers.load_post.append(AlxHandlers.AlxMsgBusSubscriptions)
     bpy.app.handlers.load_post.append(AlxHandlers.AlxAddonKeymapHandler)
@@ -99,12 +100,20 @@ def RegisterHandlers():
 
 
 def UnRegisterHandlers():
-    bpy.app.handlers.load_post.remove(AlxHandlers.AlxMsgBusSubscriptions)
-    bpy.app.handlers.load_post.remove(AlxHandlers.AlxAddonKeymapHandler)
     bpy.app.handlers.load_post.remove(
-        AlxHandlers.AlxUpdateSceneSelectionObjectList)
+        AlxHandlers.AlxMsgBusSubscriptions
+    )
+
+    bpy.app.handlers.load_post.remove(
+        AlxHandlers.AlxAddonKeymapHandler)
+
+    bpy.app.handlers.load_post.remove(
+        AlxHandlers.AlxUpdateSceneSelectionObjectList
+    )
+
     bpy.app.handlers.depsgraph_update_post.remove(
-        AlxHandlers.AlxUpdateSceneSelectionObjectList)
+        AlxHandlers.AlxUpdateSceneSelectionObjectList
+    )
 
 
 def register():

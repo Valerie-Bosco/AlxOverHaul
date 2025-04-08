@@ -9,7 +9,7 @@ from ..pose_tools.Alx_pose_tools import Alx_OT_Armature_Pose_SetPosePosition
 from ..reorganize_later.AlxModifierOperators import (
     Alx_OT_Modifier_ApplyReplace, Alx_OT_Modifier_BatchVisibility,
     Alx_OT_Modifier_ManageOnSelected)
-from ..reorganize_later.AlxObjectOperator import Alx_OT_Object_UnlockedQOrigin
+from ..reorganize_later.AlxObjectOperator import ALX_OT_Object_UnlockedQOrigin
 from ..reorganize_later.AlxProperties import (
     Alx_PG_PropertyGroup_ObjectSelectionListItem,
     Alx_PG_PropertyGroup_SessionProperties)
@@ -420,7 +420,7 @@ class Alx_PT_Scene_GeneralPivot(bpy.types.Panel):
         pivot_column.prop(context.space_data.overlay, "grid_subdivisions")
 
         pivot_column.operator(
-            Alx_OT_Object_UnlockedQOrigin.bl_idname, text="Q-Origin")
+            ALX_OT_Object_UnlockedQOrigin.bl_idname, text="Q-Origin")
 
         snapping_column = PivotLayout.column()
 
