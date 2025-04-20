@@ -105,7 +105,7 @@ class Alx_PT_Panel_AlexandriaGeneralPanel(bpy.types.Panel):
         # endregion
 
         # region Layouts
-        layout = self.layout.row()
+        layout: bpy.types.UILayout = self.layout.row()
         self.layout.ui_units_x = 25.0
 
         if (addon_properties.alexandria_general_panel_tabs == "MODIFIER") or (addon_properties.alexandria_general_panel_modifier_sidetabs != "CLOSED"):
@@ -126,10 +126,12 @@ class Alx_PT_Panel_AlexandriaGeneralPanel(bpy.types.Panel):
         header_slot_one = header_grid.column()
 
         with context.temp_override(window=override_window, area=override_area[0], region=override_region[0]):
-            UIPreset_PosePosition(header_slot_one, context_skeleton, Alx_OT_Armature_Pose_SetPosePosition.bl_idname)
+            row = header_slot_one.row().split(factor=0.5)
+            UIPreset_PosePosition(row, context_skeleton, Alx_OT_Armature_Pose_SetPosePosition.bl_idname)
             header_slot_one.separator()
 
-            UIPreset_VisibilityIsolator(header_slot_one, addon_properties, Alx_OT_Scene_VisibilityIsolator.bl_idname)
+            row = header_slot_one.row().split(factor=0.5)
+            UIPreset_VisibilityIsolator(row, addon_properties, Alx_OT_Scene_VisibilityIsolator.bl_idname)
             header_slot_one.separator()
 
             UIPreset_OverlayToggles(header_slot_one, context)

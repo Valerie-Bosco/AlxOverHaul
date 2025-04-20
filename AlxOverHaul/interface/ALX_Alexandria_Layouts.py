@@ -13,7 +13,7 @@ SEPARATOR = "SEPARATOR"
 
 
 def UIPreset_PosePosition(parent_layout: bpy.types.UILayout = None, skeleton_object: bpy.types.Object = None, operator_bl_idname: str = ""):
-    layout = parent_layout.row().split(factor=0.5)
+    layout = parent_layout.row().split(factor=0.5, align=True)
     if (skeleton_object is not None):
         op_pose = layout.operator(
             operator_bl_idname,
@@ -156,7 +156,7 @@ class Alx_UL_UIList_ObjectSelectionModifiers(bpy.types.UIList):
             modifier_layout = modifier_items_layout.column()
 
             for raw_object_modifier in item_object.modifiers:
-                modifier_slots = modifier_layout.column()
+                modifier_slots = modifier_layout.box().column()
 
                 modifier_header = modifier_slots.row(align=True)
 
@@ -302,9 +302,39 @@ def UIPreset_ModifierSettings(layout: bpy.types.UILayout = None, modifier: bpy.t
         indented_layout = layout.row()
         indented_layout.separator(factor=2.0)
 
-        mod_layout = indented_layout.box()
+        mod_layout = indented_layout.column()
+        mod_layout.separator()
 
         match modifier.type:
+
+            case "SUBSURF":
+
+                row = mod_layout.split(factor=0.75)
+                row.prop(modifier, "subdivision_type", text="")
+                row.prop(modifier, "show_only_control_edges", text="optimal")
+                mod_layout.separator()
+
+                row = mod_layout.row(align=True)
+                row.prop(modifier, "levels", text="View")
+                row.prop(modifier, "render_levels", text="Render")
+                mod_layout.separator()
+
+                row = mod_layout.row()
+                column = row.column()
+                column.prop(modifier, "use_limit_surface", text="Smoothest")
+                column.prop(modifier, "quality")
+
+                column = row.column()
+                column.prop(modifier, "use_creases", text="Use Crease")
+                column.prop(modifier, "use_custom_normals", text="Use C-Normals")
+
+                column = mod_layout.column()
+                row = column.split(factor=0.35)
+                row.label(text="Smooth UV:")
+                row.prop(modifier, "uv_smooth", text="")
+                row = column.split(factor=0.35)
+                row.label(text="Smooth Bounds:")
+                row.prop(modifier, "boundary_smooth", text="")
 
             case "MULTIRES":
                 row = mod_layout.row()
@@ -431,9 +461,6 @@ def UIPreset_ModifierSettings(layout: bpy.types.UILayout = None, modifier: bpy.t
             row.prop(modifier, "use_clip", text="clip")
             row.prop(modifier, "use_mirror_merge", text="merge")
             row.prop(modifier, "merge_threshold", text="")
-
-        if (modifier.type == "SUBSURF"):
-            layout.row().prop(modifier, "show_only_control_edges", text="optimal")
 
         if (modifier.type == "ARMATURE"):
             layout.row().prop(modifier, "object", text="")

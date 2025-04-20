@@ -12,19 +12,16 @@ def AlxMain_load_post(scene):
     load_post_lambda(context)
 
 
-@bpy.app.handlers.persistent
-def AlxMain_depsgraph_update_post(context):
-    pass
-
-
 def load_post_lambda(context: bpy.types.Context):
     if (hasattr(context, "preferences")) and (context.preferences is not None):
         if (hasattr(context.preferences, "themes")) and (context.preferences.themes is not None):
             theme = context.preferences.themes.get("Default")
 
             if (theme is not None):
+                theme.user_interface.wcol_box.inner = [*theme.user_interface.wcol_box.inner[0:3], 1]
+
                 theme.view_3d.face_front = (0, 0, 1, 0.5)
-                theme.face_back = (1, 0, 0, 0.5)
+                theme.view_3d.face_back = (1, 0, 0, 0.5)
 
 
 @bpy.app.handlers.persistent
@@ -76,6 +73,11 @@ def AlxUpdateSceneSelectionObjectListLambda():
             mod = Object.alx_modifier_collection.add()
             mod.name = f"{Object.name}_{Modifier.name}"
             mod.object_modifier = Modifier.name
+
+
+@bpy.app.handlers.persistent
+def AlxMain_depsgraph_update_post(context):
+    pass
 
 
 @bpy.app.handlers.persistent
