@@ -1,10 +1,10 @@
 import bpy
 from bpy_extras import node_utils
 
-from ..Definitions.AlxTypesDefinition import (TD_modifier_deform_types,
-                                              TD_modifier_generate_types,
-                                              TD_modifier_modifiy_types,
-                                              TD_modifier_physics_types)
+from ..A_definitions.AlxTypesDefinition import (TD_modifier_deform_types,
+                                                TD_modifier_generate_types,
+                                                TD_modifier_modifiy_types,
+                                                TD_modifier_physics_types)
 from ..pose_tools.Alx_pose_tools import Alx_OT_Armature_Pose_SetPosePosition
 from ..reorganize_later.AlxModifierOperators import (
     Alx_OT_Modifier_ApplyReplace, Alx_OT_Modifier_BatchVisibility,

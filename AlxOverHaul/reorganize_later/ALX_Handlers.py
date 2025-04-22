@@ -1,15 +1,19 @@
 import bpy
 
-from .AlxCallbacks import (notify_context_mode_update,
-                           notify_workspace_tool_update)
+from ..info_system import ALX_Info_System
 from .AlxKeymapUtils import AlxCreateKeymaps
 
 
 @bpy.app.handlers.persistent
 def AlxMain_load_post(scene):
     context = bpy.context
-
     load_post_lambda(context)
+
+
+@bpy.app.handlers.persistent
+def ALX_MainSavePost(scene):
+    context = bpy.context
+    save_post_lambda(context)
 
 
 def load_post_lambda(context: bpy.types.Context):
@@ -23,21 +27,32 @@ def load_post_lambda(context: bpy.types.Context):
                 theme.view_3d.face_front = (0, 0, 1, 0.5)
                 theme.view_3d.face_back = (1, 0, 0, 0.5)
 
+    ALX_Info_System.INFO_Generator(context)
 
-@bpy.app.handlers.persistent
-def AlxMsgBusSubscriptions(self, context: bpy.types.Context):
-    override_window = bpy.context.window
-    override_screen = override_window.screen
-    override_area = [
-        area for area in override_screen.areas if area.type == "VIEW_3D"]
-    override_region = [
-        region for region in override_area[0].regions if region.type == 'WINDOW']
 
-    with bpy.context.temp_override(window=override_window, area=override_area[0], region=override_region[0]):
-        bpy.msgbus.subscribe_rna(key=bpy.context.path_resolve("mode", False), owner=bpy.context.object, args=(
-        ), notify=notify_context_mode_update, options={"PERSISTENT"})
-        bpy.msgbus.subscribe_rna(key=bpy.context.workspace.path_resolve(
-            "tools", False), owner=bpy.context.workspace, args=(), notify=notify_workspace_tool_update, options={"PERSISTENT"})
+def save_post_lambda(context: bpy.types.Context):
+    ALX_Info_System.INFO_Generator(context)
+
+    properties_area = [area for area in context.screen.areas if (area is not None) and (area.type == "PROPERTIES")]
+
+    if (properties_area is not None) and (type(properties_area) == list) and (len(properties_area) > 0):
+        properties_area[0].tag_redraw()
+
+
+# @bpy.app.handlers.persistent
+# def AlxMsgBusSubscriptions(self, context: bpy.types.Context):
+#     override_window = bpy.context.window
+#     override_screen = override_window.screen
+#     override_area = [
+#         area for area in override_screen.areas if area.type == "VIEW_3D"]
+#     override_region = [
+#         region for region in override_area[0].regions if region.type == 'WINDOW']
+
+#     with bpy.context.temp_override(window=override_window, area=override_area[0], region=override_region[0]):
+#         bpy.msgbus.subscribe_rna(key=bpy.context.path_resolve("mode", False), owner=bpy.context.object, args=(
+#         ), notify=notify_context_mode_update, options={"PERSISTENT"})
+#         bpy.msgbus.subscribe_rna(key=bpy.context.workspace.path_resolve(
+#             "tools", False), owner=bpy.context.workspace, args=(), notify=notify_workspace_tool_update, options={"PERSISTENT"})
 
 
 @bpy.app.handlers.persistent
@@ -75,9 +90,9 @@ def AlxUpdateSceneSelectionObjectListLambda():
             mod.object_modifier = Modifier.name
 
 
-@bpy.app.handlers.persistent
-def AlxMain_depsgraph_update_post(context):
-    pass
+# @bpy.app.handlers.persistent
+# def AlxMain_depsgraph_update_post(context):
+#     pass
 
 
 @bpy.app.handlers.persistent

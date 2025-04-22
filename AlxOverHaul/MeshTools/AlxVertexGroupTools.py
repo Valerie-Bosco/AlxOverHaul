@@ -1,6 +1,6 @@
 import bpy
 
-from ..Definitions.AlxConstantsDefinition import NEAR_ZERO_FLOAT
+from ..A_definitions.AlxConstantsDefinition import NEAR_ZERO_FLOAT
 
 
 class Alx_OT_Mesh_VertexGroup_Clean(bpy.types.Operator):

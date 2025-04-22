@@ -13,3 +13,15 @@ def bIsLeft(bone: bpy.types.Bone, check_name=False):
             re.IGNORECASE
         ) != None
     ) if check_name else True
+
+
+def bIsRight(bone: bpy.types.Bone, check_name=False):
+    return (bone.head_local[0] > 0.001) and (
+        re.search(
+            r"(?<![\S+\s+])R_(?!\s+) | (?<![\S+\s+])R\.(?!\s+) | (?<![\S+\s+])_R(?!\s+) | (?<![\S+\s+])\.R(?!\s+) | \
+            (?<![\S+\s+])RIGHT_(?!\s+) | (?<![\S+\s+])RIGHT\.(?!\s+) | (?<![\S+\s+])_RIGHT(?!\s+) | (?<![\S+\s+])\.RIGHT(?!\s+) | \
+            (?<![\S+\s+])RIGHT(?!\s+) | (?<!\s+)RIGHT(?![\S+\s+])",
+            bone.name,
+            re.IGNORECASE
+        ) != None
+    ) if check_name else True

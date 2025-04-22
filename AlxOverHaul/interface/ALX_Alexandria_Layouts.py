@@ -1,11 +1,11 @@
 
 import bpy
 
-from AlxOverHaul.reorganize_later.AlxModifierOperators import (
+from ..info_system import ALX_Info_System
+from ..reorganize_later.AlxModifierOperators import (
     Alx_OT_Modifier_ManageOnSelected, Alx_PT_Operator_ModifierChangeSettings)
-from AlxOverHaul.reorganize_later.AlxProperties import \
+from ..reorganize_later.AlxProperties import \
     Alx_PG_PropertyGroup_ObjectSelectionListItem
-
 from ..utilities.AlxUtilities import get_enum_property_items
 
 LABEL = "LABEL_"
@@ -121,6 +121,59 @@ def UIPreset_ModifierCreateList(layout: bpy.types.UILayout = None, modifiers_typ
             modifier_button.modifier_type = mod_id
             modifier_button.create_modifier = True
             modifier_button.remove_modifier = False
+
+
+def UIPreset_ObjectTabUIWrapper(self, context):
+    layout = self.layout
+    addon_properties = context.window_manager.alx_session_properties
+    show_modifier_list = addon_properties.ui_modifier_list_wrapper_toggle_display
+
+    row = layout.row()
+    row.prop(
+        addon_properties,
+        "ui_modifier_list_wrapper_toggle_display",
+        text="ALX Modifier List",
+        icon="TRIA_DOWN" if (show_modifier_list) else "TRIA_RIGHT",
+        emboss=not show_modifier_list
+    )
+
+    if (show_modifier_list):
+        UIPreset_ModifierList(layout, context)
+
+    UIPreset_ObjectInfoList(layout, context)
+
+
+def UIPreset_ObjectInfoList(layout: bpy.types.UILayout = None, context: bpy.types.Context = bpy.context):
+    object_info = ALX_Info_System.info_dict
+
+    layout = layout.box()
+
+    info_column = layout.column()
+    if (object_info is not None):
+        for object, info in object_info.items():
+            box = info_column.box()
+
+            box.label(text=object)
+
+            row = box.split(factor=0.05)
+            row.separator()
+            column = row.column()
+            for info_type, info_text in info.items():
+                if (info_type == "info"):
+                    column.label(text="Info:", icon="INFO_LARGE")
+                    for text in info_text:
+                        column.label(text=text)
+
+                if (info_type == "warning"):
+                    column.label(text="Warning:", icon="WARNING_LARGE")
+                    for text in info_text:
+                        column.label(text=text)
+
+                if (info_type == "error"):
+                    column.label(text="Error:", icon="CANCEL_LARGE")
+                    for text in info_text:
+                        column.label(text=text)
+
 
 # region Modifier
 
@@ -238,24 +291,6 @@ class Alx_UL_UIList_ObjectSelectionModifiers(bpy.types.UIList):
                                      emboss=True)
 
             object_slot_layout.separator(factor=2.0)
-
-
-def UIPreset_ModiferListWrapper(self, context):
-    layout = self.layout
-    addon_properties = context.window_manager.alx_session_properties
-    show_modifier_list = addon_properties.ui_modifier_list_wrapper_toggle_display
-
-    row = layout.row()
-    row.prop(
-        addon_properties,
-        "ui_modifier_list_wrapper_toggle_display",
-        text="ALX Modifier List",
-        icon="TRIA_DOWN" if (show_modifier_list) else "TRIA_RIGHT",
-        emboss=not show_modifier_list
-    )
-
-    if (show_modifier_list):
-        UIPreset_ModifierList(layout, context)
 
 
 def UIPreset_ModifierList(layout: bpy.types.UILayout = None, context: bpy.types.Context = bpy.context):

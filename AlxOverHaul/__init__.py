@@ -3,10 +3,10 @@ import importlib
 import bpy
 
 from .interface import ALX_Alexandria_General_Panel, ALX_Shapeky_Toolset
-from .interface.ALX_Alexandria_Layouts import UIPreset_ModiferListWrapper
+from .interface.ALX_Alexandria_Layouts import UIPreset_ObjectTabUIWrapper
 from .modules.addon_updater_system.addon_updater import Alx_Addon_Updater
 from .modules.Alx_Module_Manager import Alx_Module_Manager
-from .reorganize_later import AlxHandlers, AlxProperties
+from .reorganize_later import ALX_Handlers, AlxProperties
 from .UnlockedTools import AlxUnlockedModeling
 
 bl_info = {
@@ -86,33 +86,39 @@ def UnRegisterProperties():
 
 
 def RegisterHandlers():
-    bpy.app.handlers.load_post.append(AlxHandlers.AlxMain_load_post)
-    bpy.app.handlers.depsgraph_update_post.append(
-        AlxHandlers.AlxMain_depsgraph_update_post
+    bpy.app.handlers.load_post.append(
+        ALX_Handlers.AlxMain_load_post
+    )
+    bpy.app.handlers.save_post.append(
+        ALX_Handlers.ALX_MainSavePost
     )
 
-    bpy.app.handlers.load_post.append(AlxHandlers.AlxMsgBusSubscriptions)
-    bpy.app.handlers.load_post.append(AlxHandlers.AlxAddonKeymapHandler)
     bpy.app.handlers.load_post.append(
-        AlxHandlers.AlxUpdateSceneSelectionObjectList)
+        ALX_Handlers.AlxAddonKeymapHandler
+    )
+    bpy.app.handlers.load_post.append(
+        ALX_Handlers.AlxUpdateSceneSelectionObjectList
+    )
     bpy.app.handlers.depsgraph_update_post.append(
-        AlxHandlers.AlxUpdateSceneSelectionObjectList)
+        ALX_Handlers.AlxUpdateSceneSelectionObjectList
+    )
 
 
 def UnRegisterHandlers():
     bpy.app.handlers.load_post.remove(
-        AlxHandlers.AlxMsgBusSubscriptions
+        ALX_Handlers.AlxMain_load_post
+    )
+    bpy.app.handlers.save_post.remove(
+        ALX_Handlers.ALX_MainSavePost
     )
 
     bpy.app.handlers.load_post.remove(
-        AlxHandlers.AlxAddonKeymapHandler)
-
+        ALX_Handlers.AlxAddonKeymapHandler)
     bpy.app.handlers.load_post.remove(
-        AlxHandlers.AlxUpdateSceneSelectionObjectList
+        ALX_Handlers.AlxUpdateSceneSelectionObjectList
     )
-
     bpy.app.handlers.depsgraph_update_post.remove(
-        AlxHandlers.AlxUpdateSceneSelectionObjectList
+        ALX_Handlers.AlxUpdateSceneSelectionObjectList
     )
 
 
@@ -120,7 +126,7 @@ def register():
     module_loader.developer_register_modules(mute=False)
     addon_updater.register_addon_updater(mute=True)
 
-    bpy.types.OBJECT_PT_context_object.prepend(UIPreset_ModiferListWrapper)
+    bpy.types.OBJECT_PT_context_object.prepend(UIPreset_ObjectTabUIWrapper)
     bpy.types.DATA_PT_shape_keys.prepend(ALX_Shapeky_Toolset.ALX_MT_ShapeKeyToolset.draw)
 
     RegisterProperties()
@@ -133,7 +139,7 @@ def unregister():
     module_loader.developer_unregister_modules()
     addon_updater.unregister_addon_updater()
 
-    bpy.types.OBJECT_PT_context_object.remove(UIPreset_ModiferListWrapper)
+    bpy.types.OBJECT_PT_context_object.remove(UIPreset_ObjectTabUIWrapper)
     bpy.types.DATA_PT_shape_keys.remove(ALX_Shapeky_Toolset.ALX_MT_ShapeKeyToolset.draw)
 
     UnRegisterProperties()
