@@ -1,7 +1,7 @@
 
 import bpy
 
-from ..info_system import ALX_Info_System
+from ..info_system.ALX_Info_UI import UIPreset_ObjectInfoList
 from ..reorganize_later.AlxModifierOperators import (
     Alx_OT_Modifier_ManageOnSelected, Alx_PT_Operator_ModifierChangeSettings)
 from ..reorganize_later.AlxProperties import \
@@ -125,8 +125,12 @@ def UIPreset_ModifierCreateList(layout: bpy.types.UILayout = None, modifiers_typ
 
 def UIPreset_ObjectTabUIWrapper(self, context):
     layout = self.layout
+
     addon_properties = context.window_manager.alx_session_properties
     show_modifier_list = addon_properties.ui_modifier_list_wrapper_toggle_display
+
+    info_system_properties = context.window_manager.alx_info_system_data
+    show_info_system_panel = context.window_manager.alx_info_system_data.info_system_ui_show_panel
 
     row = layout.row()
     row.prop(
@@ -134,45 +138,23 @@ def UIPreset_ObjectTabUIWrapper(self, context):
         "ui_modifier_list_wrapper_toggle_display",
         text="ALX Modifier List",
         icon="TRIA_DOWN" if (show_modifier_list) else "TRIA_RIGHT",
-        emboss=not show_modifier_list
+        emboss=True
     )
 
     if (show_modifier_list):
         UIPreset_ModifierList(layout, context)
 
-    UIPreset_ObjectInfoList(layout, context)
+    row = layout.row()
+    row.prop(
+        info_system_properties,
+        "info_system_ui_show_panel",
+        text="ALX Info System",
+        icon="TRIA_DOWN" if (show_info_system_panel) else "TRIA_RIGHT",
+        emboss=True
+    )
 
-
-def UIPreset_ObjectInfoList(layout: bpy.types.UILayout = None, context: bpy.types.Context = bpy.context):
-    object_info = ALX_Info_System.info_dict
-
-    layout = layout.box()
-
-    info_column = layout.column()
-    if (object_info is not None):
-        for object, info in object_info.items():
-            box = info_column.box()
-
-            box.label(text=object)
-
-            row = box.split(factor=0.05)
-            row.separator()
-            column = row.column()
-            for info_type, info_text in info.items():
-                if (info_type == "info"):
-                    column.label(text="Info:", icon="INFO_LARGE")
-                    for text in info_text:
-                        column.label(text=text)
-
-                if (info_type == "warning"):
-                    column.label(text="Warning:", icon="WARNING_LARGE")
-                    for text in info_text:
-                        column.label(text=text)
-
-                if (info_type == "error"):
-                    column.label(text="Error:", icon="CANCEL_LARGE")
-                    for text in info_text:
-                        column.label(text=text)
+    if (show_info_system_panel):
+        UIPreset_ObjectInfoList(layout, context)
 
 
 # region Modifier

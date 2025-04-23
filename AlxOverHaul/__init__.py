@@ -2,6 +2,7 @@ import importlib
 
 import bpy
 
+from .info_system import ALX_Info_System
 from .interface import ALX_Alexandria_General_Panel, ALX_Shapeky_Toolset
 from .interface.ALX_Alexandria_Layouts import UIPreset_ObjectTabUIWrapper
 from .modules.addon_updater_system.addon_updater import Alx_Addon_Updater
@@ -61,6 +62,9 @@ def RegisterProperties():
     bpy.types.Object.alx_modifier_collection = bpy.props.CollectionProperty(
         type=ALX_Alexandria_General_Panel.Alx_PG_PropertyGroup_ModifierSettings)
 
+    bpy.types.WindowManager.alx_info_system_data = bpy.props.PointerProperty(
+        type=ALX_Info_System.ALX_PG_PropertyGroup_InfoSystemData)
+
 
 def UnRegisterProperties():
     del bpy.types.WindowManager.alx_session_properties
@@ -83,6 +87,8 @@ def UnRegisterProperties():
 
     del bpy.types.Object.alx_modifier_expand_settings
     del bpy.types.Object.alx_modifier_collection
+
+    del bpy.types.WindowManager.alx_info_system_data
 
 
 def RegisterHandlers():
