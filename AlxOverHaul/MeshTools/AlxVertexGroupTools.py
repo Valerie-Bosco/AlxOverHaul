@@ -1,6 +1,7 @@
+import bmesh
 import bpy
 
-from ..A_definitions.AlxConstantsDefinition import NEAR_ZERO_FLOAT
+from ..definitions.AlxConstantsDefinition import NEAR_ZERO_FLOAT
 
 
 class Alx_OT_Mesh_VertexGroup_Clean(bpy.types.Operator):
@@ -60,3 +61,35 @@ class Alx_OT_Mesh_VertexGroup_Clean(bpy.types.Operator):
 
     def invoke(self, context: bpy.types.Context, event):
         return context.window_manager.invoke_props_dialog(self, width=300)
+
+
+# class ALX_OT_MESH_VertexWeight_Mirror(bpy.types.Operator):
+#     """"""
+
+#     bl_label = "ALX Mesh - Vertex Weight Mirror"
+#     bl_idname = "alx.operator_mesh_vertex_weight_mirror"
+
+#     bl_options = {"REGISTER", "UNDO"}
+
+#     source_side: bpy.props.EnumProperty(
+#         default="LEFT",
+#         items=[
+#             ("LEFT", "Left", "", 1),
+#             ("RIGHT", "Right", "", 1 << 1)
+#         ])  # type:ignore
+
+#     @classmethod
+#     def poll(self, context: bpy.types.Context):
+#         return True
+
+#     def execute(self, context: bpy.types.Context):
+#         mesh = context.active_object.data
+
+#         context_bmesh = bmesh.new()
+#         context_bmesh.from_mesh(mesh)
+
+#         context_bmesh.verts.layers.
+
+#         object
+
+#         return {"FINISHED"}

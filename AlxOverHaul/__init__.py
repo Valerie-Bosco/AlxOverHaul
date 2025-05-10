@@ -5,8 +5,9 @@ import bpy
 from .info_system import ALX_Info_System
 from .interface import ALX_Alexandria_General_Panel, ALX_Shapeky_Toolset
 from .interface.ALX_Alexandria_Layouts import UIPreset_ObjectTabUIWrapper
-from .modules.addon_updater_system.addon_updater import Alx_Addon_Updater
 from .modules.Alx_Module_Manager import Alx_Module_Manager
+from .modules.ALXAddonUpdater.ALXAddonUpdater.ALX_AddonUpdater import \
+    Alx_Addon_Updater
 from .reorganize_later import ALX_Handlers, AlxProperties
 from .UnlockedTools import AlxUnlockedModeling
 
@@ -24,8 +25,18 @@ bl_info = {
 }
 
 
-module_loader = Alx_Module_Manager(__path__, globals())
-addon_updater = Alx_Addon_Updater(__path__[0], bl_info, "Github", "Valerie-Bosco", "AlxOverHaul", "https://github.com/Valerie-Bosco/AlxOverHaul/releases")
+module_loader = Alx_Module_Manager(
+    __path__,
+    globals()
+)
+addon_updater = Alx_Addon_Updater(
+    path=__path__,
+    bl_info=bl_info,
+    engine="Github",
+    engine_user_name="Valerie-Bosco",
+    engine_repo_name="AlxOverHaul",
+    manual_download_website="https://github.com/Valerie-Bosco/AlxOverHaul/releases/tag/main_branch_latest"
+)
 
 
 def RegisterProperties():

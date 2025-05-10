@@ -1,7 +1,8 @@
 import bpy
 import rna_keymap_ui
 
-from .modules.addon_updater_system.addon_updater import update_settings_ui
+from .modules.ALXAddonUpdater.ALXAddonUpdater.ALX_AddonUpdaterUI import \
+    update_settings_ui
 from .reorganize_later import AlxKeymapUtils
 
 

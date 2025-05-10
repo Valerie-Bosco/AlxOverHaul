@@ -1,6 +1,6 @@
 from typing import Final
 
-TD_UNITY_humanoid_bones: Final[str] = [
+TD_UNITY_humanoid_bones: Final[str] = (
     "Hips",
     "LeftUpperLeg",
     "RightUpperLeg",
@@ -56,9 +56,9 @@ TD_UNITY_humanoid_bones: Final[str] = [
     "RightLittleProximal",
     "RightLittleIntermediate",
     "RightLittleDistal"
-]
+)
 
-TD_UNITY_required_humanoid_bones: Final[str] = [
+TD_UNITY_required_humanoid_bones: Final[str] = (
     "Hips",
     "LeftUpperLeg",
     "RightUpperLeg",
@@ -74,9 +74,9 @@ TD_UNITY_required_humanoid_bones: Final[str] = [
     "RightLowerArm",
     "LeftHand",
     "RightHand",
-]
+)
 
-TD_UNITY_optional_humanoid_bones: Final[str] = [
+TD_UNITY_optional_humanoid_bones: Final[str] = (
     "Chest",
     "UpperChest",
     "LeftShoulder",
@@ -117,4 +117,4 @@ TD_UNITY_optional_humanoid_bones: Final[str] = [
     "RightLittleProximal",
     "RightLittleIntermediate",
     "RightLittleDistal"
-]
+)

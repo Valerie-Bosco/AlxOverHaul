@@ -1,6 +1,6 @@
 import bpy
 
-from ..A_definitions.AlxTypesDefinition import TD_object_types
+from ..definitions.AlxTypesDefinition import TD_object_types
 
 
 class Alx_MT_MenuPie_UnlockedObjectModes(bpy.types.Menu):

@@ -1,6 +1,6 @@
 import bpy
 
-from ..A_definitions import modifiers
+from ..definitions import modifiers
 
 info_dict = dict()
 
@@ -35,8 +35,14 @@ def INFO_Generator(context: bpy.types.Context):
                         add_warning(info_dict, object, "Mesh has shape-keys with incompatible modifiers")
 
 
-def add_info():
-    pass
+def add_info(info_dict: dict, object: bpy.types.Object, info: str):
+    if ("info" not in info_dict.keys()):
+        info_dict["info"] = dict()
+
+    if (object.name not in info_dict["info"].keys()):
+        info_dict["info"][object.name] = list()
+
+    info_dict["info"][object.name].append(info)
 
 
 def add_warning(info_dict: dict, object: bpy.types.Object, warning: str):
@@ -49,5 +55,11 @@ def add_warning(info_dict: dict, object: bpy.types.Object, warning: str):
     info_dict["warning"][object.name].append(warning)
 
 
-def add_error():
-    pass
+def add_error(info_dict: dict, object: bpy.types.Object, error: str):
+    if ("error" not in info_dict.keys()):
+        info_dict["error"] = dict()
+
+    if (object.name not in info_dict["error"].keys()):
+        info_dict["error"][object.name] = list()
+
+    info_dict["error"][object.name].append(error)

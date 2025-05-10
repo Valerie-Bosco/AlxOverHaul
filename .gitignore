@@ -133,3 +133,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 bl_ui_widgets-master
+AlxOverHaul/modules/ALXAddonUpdater/ALXAddonUpdater/_updater/AlxOverHaul.modules.ALXAddonUpdater.ALXAddonUpdater_updater_status.json
