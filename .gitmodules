@@ -1,3 +1,6 @@
-[submodule "ALXAddonUpdater"]
-	path = ALXAddonUpdater
+[submodule "AlxOverHaul/modules/ALXModuleManager"]
+	path = AlxOverHaul/modules/ALXModuleManager
+	url = https://github.com/Valerie-Bosco/ALXModuleManager.git
+[submodule "AlxOverHaul/modules/ALXAddonUpdater"]
+	path = AlxOverHaul/modules/ALXAddonUpdater
 	url = https://github.com/Valerie-Bosco/ALXAddonUpdater.git
