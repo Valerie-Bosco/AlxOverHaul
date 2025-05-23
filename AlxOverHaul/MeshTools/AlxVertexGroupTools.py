@@ -14,6 +14,7 @@ class Alx_OT_Mesh_VertexGroup_Clean(bpy.types.Operator):
 
     b_empty: bpy.props.BoolProperty()  # type:ignore
     b_skeleton_only: bpy.props.BoolProperty()  # type:ignore
+    b_bone_deform_off: bpy.props.BoolProperty()  # type:ignore
 
     @classmethod
     def poll(self, context: bpy.types.Context):
