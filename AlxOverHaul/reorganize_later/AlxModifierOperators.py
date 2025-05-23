@@ -65,8 +65,10 @@ class Alx_OT_Modifier_ManageOnSelected(bpy.types.Operator):
             if (self.apply_modifier == True):
                 if (Object is not None):
                     _mode = context.mode if (context.mode[0:4] != "EDIT") else "EDIT" if (context.mode[0:4] == "EDIT") else "OBJECT"
+
                     bpy.ops.object.mode_set(mode="OBJECT")
-                    bpy.ops.object.modifier_apply(modifier=Object.modifiers[self.object_modifier_index].name)
+                    with context.temp_override(object=Object):
+                        bpy.ops.object.modifier_apply(modifier=Object.modifiers[self.object_modifier_index].name)
                     bpy.ops.object.mode_set(mode=_mode)
                 return {"FINISHED"}
 

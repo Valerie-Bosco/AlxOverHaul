@@ -1,13 +1,12 @@
-import importlib
-
 import bpy
 
 from .info_system import ALX_Info_System
 from .interface import ALX_Alexandria_General_Panel, ALX_Shapeky_Toolset
 from .interface.ALX_Alexandria_Layouts import UIPreset_ObjectTabUIWrapper
-from .modules.Alx_Module_Manager import Alx_Module_Manager
 from .modules.ALXAddonUpdater.ALXAddonUpdater.ALX_AddonUpdater import \
     Alx_Addon_Updater
+from .modules.ALXModuleManager.ALXModuleManager.ALX_ModuleManager import \
+    Alx_Module_Manager
 from .reorganize_later import ALX_Handlers, AlxProperties
 from .UnlockedTools import AlxUnlockedModeling
 
@@ -26,8 +25,9 @@ bl_info = {
 
 
 module_loader = Alx_Module_Manager(
-    __path__,
-    globals()
+    path=__path__,
+    globals=globals(),
+    mute=True
 )
 addon_updater = Alx_Addon_Updater(
     path=__path__,
@@ -140,7 +140,7 @@ def UnRegisterHandlers():
 
 
 def register():
-    module_loader.developer_register_modules(mute=False)
+    module_loader.developer_register_modules()
     addon_updater.register_addon_updater(mute=True)
 
     bpy.types.OBJECT_PT_context_object.prepend(UIPreset_ObjectTabUIWrapper)
