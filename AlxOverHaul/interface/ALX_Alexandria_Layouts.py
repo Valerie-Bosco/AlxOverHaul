@@ -2,8 +2,9 @@
 import bpy
 
 from ..info_system.ALX_Info_UI import UIPreset_ObjectInfoList
-from ..reorganize_later.AlxModifierOperators import (
-    Alx_OT_Modifier_ManageOnSelected, Alx_PT_Operator_ModifierChangeSettings)
+from ..MeshTools.AlxModifierOperators import (
+    Alx_OT_Modifier_ApplyReplace, Alx_OT_Modifier_ManageOnSelected,
+    Alx_PT_Operator_ModifierChangeSettings)
 from ..reorganize_later.AlxProperties import \
     Alx_PG_PropertyGroup_ObjectSelectionListItem
 from ..utilities.AlxUtilities import get_enum_property_items
@@ -221,15 +222,30 @@ class Alx_UL_UIList_ObjectSelectionModifiers(bpy.types.UIList):
                 modifier_delete_button.move_modifier_down = False
 
                 modifier_apply_button: Alx_OT_Modifier_ManageOnSelected = modifier_header.operator(
-                    Alx_OT_Modifier_ManageOnSelected.bl_idname, icon="FILE_TICK", emboss=False)
+                    Alx_OT_Modifier_ManageOnSelected.bl_idname,
+                    icon="FILE_TICK",
+                    emboss=False
+                )
                 modifier_apply_button.object_pointer_reference = item_object.name
                 modifier_apply_button.object_modifier_index = item_object.modifiers.find(
-                    raw_object_modifier.name)
+                    raw_object_modifier.name
+                )
                 modifier_apply_button.create_modifier = False
                 modifier_apply_button.apply_modifier = True
                 modifier_apply_button.remove_modifier = False
                 modifier_apply_button.move_modifier_up = False
                 modifier_apply_button.move_modifier_down = False
+
+                modifier_apply_replace_button: Alx_OT_Modifier_ApplyReplace = modifier_header.operator(
+                    Alx_OT_Modifier_ApplyReplace.bl_idname,
+                    text="",
+                    icon="FILE_REFRESH",
+                    emboss=False
+                )
+                modifier_apply_replace_button.object_pointer_reference = item_object.name
+                modifier_apply_replace_button.object_modifier_index = item_object.modifiers.find(
+                    raw_object_modifier.name
+                )
 
                 if (item_object.alx_modifier_collection.get(f"{item_object.name}_{raw_object_modifier.name}").show_options == True):
                     UIPreset_ModifierSettings(
@@ -238,6 +254,8 @@ class Alx_UL_UIList_ObjectSelectionModifiers(bpy.types.UIList):
                 modifier_header.prop(
                     raw_object_modifier, "name", text="", icon=icon_name, emboss=True)
 
+                modifier_header.prop(raw_object_modifier,
+                                     "show_on_cage", text="", emboss=True)
                 modifier_header.prop(raw_object_modifier,
                                      "show_in_editmode", text="", emboss=True)
                 modifier_header.prop(raw_object_modifier,

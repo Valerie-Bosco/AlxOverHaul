@@ -103,58 +103,44 @@ class Alx_OT_Modifier_ApplyReplace(bpy.types.Operator):
     bl_idname = "alx.operator_modifier_apply_replace"
     bl_options = {"REGISTER", "UNDO", "INTERNAL"}
 
-    def auto_object_modifier(scene, context: bpy.types.Context):
-        if (context.object is not None):
-            modifier_list = [(modifier.type, modifier.name, "") for modifier in context.object.modifiers]
-        return modifier_list
-
-    replace_type: bpy.props.EnumProperty(name="Modifier", items=auto_object_modifier)  # type:ignore
+    object_pointer_reference: bpy.props.StringProperty(name="", default="", options={"HIDDEN"})  # type:ignore
+    object_modifier_index: bpy.props.IntProperty(name="", default=0, options={"HIDDEN"})  # type:ignore
 
     @classmethod
     def poll(self, context: bpy.types.Context):
         return True
 
     def execute(self, context: bpy.types.Context):
-        try:
-            context.selectable_objects[0]
+        Object: bpy.types.Object = bpy.data.objects.get(self.object_pointer_reference)
 
-            for selected_object in context.selected_objects:
-                modifiers = AlxRetirive_ModifierList(selected_object, self.replace_type)
+        if (Object is not None):
 
-                context.view_layer.objects.active = selected_object
+            modifier_target = Object.modifiers[self.object_modifier_index]
+            modifier_settings_clone = dict()
+            for attr in dir(modifier_target):
+                modifier_settings_clone[attr] = getattr(modifier_target, attr)
 
-                for modifier in modifiers:
-                    backup_modifier = dict()
-                    for attr in dir(modifier):
-                        backup_modifier[attr] = getattr(modifier, attr)
+            _mode = context.mode if (context.mode[0:4] != "EDIT") else "EDIT" if (context.mode[0:4] == "EDIT") else "OBJECT"
+            bpy.ops.object.mode_set(mode="OBJECT")
+            with context.temp_override(object=Object):
+                bpy.ops.object.modifier_apply(modifier=Object.modifiers[self.object_modifier_index].name)
+            bpy.ops.object.mode_set(mode=_mode)
 
-                    modifier_index = selected_object.modifiers.find(modifier.name)
-                    _mode = context.mode if (context.mode[0:4] != "EDIT") else "EDIT" if (context.mode[0:4] == "EDIT") else "OBJECT"
-                    bpy.ops.object.mode_set(mode="OBJECT")
-                    bpy.ops.object.modifier_apply(modifier=modifier.name)
-                    bpy.ops.object.mode_set(mode=_mode)
+            new_modifier = Object.modifiers.new(name=modifier_settings_clone["name"], type=modifier_settings_clone["type"])
 
-                    new_modifier = selected_object.modifiers.new(name=backup_modifier["name"], type=backup_modifier["type"])
+            for mod_setting in dir(new_modifier):
+                try:
+                    setattr(new_modifier, mod_setting, modifier_settings_clone[mod_setting])
+                except:
+                    pass
 
-                    for mod_setting in dir(new_modifier):
-                        try:
-                            setattr(new_modifier, mod_setting, backup_modifier[mod_setting])
-                        except:
-                            pass
-
-                    new_index = selected_object.modifiers.find(new_modifier.name)
-                    try:
-                        selected_object.modifiers.move(new_index, modifier_index)
-                    except Exception as error:
-                        print(error)
-
-        except Exception as error:
-            print(error)
+            new_index = Object.modifiers.find(new_modifier.name)
+            try:
+                Object.modifiers.move(new_index, self.object_modifier_index)
+            except Exception as error:
+                print(error)
 
         return {"FINISHED"}
-
-    def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width=300)
 
 
 class Alx_OT_Modifier_BatchVisibility(bpy.types.Operator):
