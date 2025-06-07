@@ -176,8 +176,6 @@ class Alx_PT_Panel_AlexandriaGeneralPanel(bpy.types.Panel):
 
             column = ModifierTabBox.column()
             row = column.row()
-            row.operator(Alx_OT_Modifier_ApplyReplace.bl_idname,
-                         text="Apply-Replace Modifier")
             row.operator(Alx_OT_Modifier_BatchVisibility.bl_idname,
                          text="Batch Visibility")
             column.template_list(Alx_UL_UIList_ObjectSelectionModifiers.bl_idname, list_id="", dataptr=context.scene,
