@@ -9,6 +9,7 @@ from .modules.ALXModuleManager.ALXModuleManager.ALX_ModuleManager import \
     Alx_Module_Manager
 from .reorganize_later import ALX_Handlers, AlxProperties
 from .UnlockedTools import AlxUnlockedModeling
+from .weight_paint_tools import Alx_weightpaint_bucket_fill
 
 bl_info = {
     "name": "AlxOverHaul",
@@ -64,17 +65,27 @@ def RegisterProperties():
         type=AlxUnlockedModeling.Alx_PG_PropertyGroup_UnlockedModelingProperties)
 
     bpy.types.Object.alx_particle_surface_object = bpy.props.PointerProperty(
-        type=bpy.types.Object)
+        type=bpy.types.Object
+    )
     bpy.types.Object.alx_particle_generator_source_object = bpy.props.PointerProperty(
-        type=bpy.types.Object)
+        type=bpy.types.Object
+    )
 
     bpy.types.Object.alx_modifier_expand_settings = bpy.props.BoolProperty(
         default=False)
     bpy.types.Object.alx_modifier_collection = bpy.props.CollectionProperty(
-        type=ALX_Alexandria_General_Panel.Alx_PG_PropertyGroup_ModifierSettings)
+        type=ALX_Alexandria_General_Panel.Alx_PG_PropertyGroup_ModifierSettings
+    )
 
     bpy.types.WindowManager.alx_info_system_data = bpy.props.PointerProperty(
-        type=ALX_Info_System.ALX_PG_PropertyGroup_InfoSystemData)
+        type=ALX_Info_System.ALX_PG_PropertyGroup_InfoSystemData
+    )
+
+    # region weightpaint bucketfill
+    bpy.types.Scene.alx_tool_weight_paint_bucket_fill_properties = bpy.props.PointerProperty(
+        type=Alx_weightpaint_bucket_fill.Alx_PG_PropertyGroup_WeightPaint_BucketFill_Properties
+    )
+    # endregion
 
 
 def UnRegisterProperties():

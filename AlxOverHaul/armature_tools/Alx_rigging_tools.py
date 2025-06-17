@@ -1,3 +1,5 @@
+import re
+
 import bmesh
 import bpy
 
@@ -232,3 +234,33 @@ class Alx_OT_Armature_BoneChainOnSelection(bpy.types.Operator):
 
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self)
+
+
+class ALX_OT_SKELETON_AutoResolveEndBones(bpy.types.Operator):
+
+    bl_label = "ALX Skeleton - Auto-Resolve \"_end\" bones"
+    bl_idname = "alx.operator_skeleton_resolve_end_bones"
+
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(self, context: bpy.types.Context):
+        return True
+
+    def execute(self, context: bpy.types.Context):
+        if (context.active_object is not None) and (context.active_object.data is not None) and (context.active_object.type == "ARMATURE"):
+            armature_object: bpy.types.Armature = context.active_object.data
+
+            bone: bpy.types.Bone
+
+            _mode = context.mode if (context.mode[0:4] != "EDIT") else "EDIT" if (context.mode[0:4] == "EDIT") else "OBJECT"
+
+            bpy.ops.object.mode_set(mode="EDIT")
+            for bone in armature_object.edit_bones:
+                patterns = re.findall(r"(\_end)", bone.name, re.IGNORECASE)
+                if (len(patterns) > 1):
+                    armature_object.edit_bones.remove(bone)
+
+            bpy.ops.object.mode_set(mode=_mode)
+
+        return {"FINISHED"}

@@ -305,33 +305,6 @@ def UIPreset_ModifierList(layout: bpy.types.UILayout = None, context: bpy.types.
     )
 
 
-# class WRAPPER_OT_BPYOPS_MODIFIER(bpy.types.Operator):
-#     bl_idname = "alx.bpyops_modifier"
-#     bl_label = ""
-#     bl_options = {"UNDO"}
-
-#     active_object: bpy.props.StringProperty()  # type:ignore
-#     modifier_name: bpy.props.StringProperty()  # type:ignore
-#     modifier_setting: bpy.props.StringProperty()  # type:ignore
-
-#     def lambda_function(self, context, modifier_context):
-#         context.view_layer.objects.active = modifier_context["active_object"]
-#         for selected_object in context.selected_objects:
-#             if (selected_object.name in [obj.name for obj in modifier_context["selected_objects"]]):
-#                 selected_object.select_set(True)
-
-#     def execute(self, context):
-#         modifier_context = context.copy()
-
-#         modifier_context["active_object"] = bpy.data.objects[self.active_object]
-
-#         with context.temp_override(**modifier_context):
-#             bpy.ops.object.multires_subdivide(modifier=self.modifier_name, mode=self.modifier_setting)
-
-#         # self.lambda_function(context, modifier_context)
-#         return {'FINISHED'}
-
-
 def UIPreset_ModifierSettings(layout: bpy.types.UILayout = None, modifier: bpy.types.Modifier = None, context: bpy.types.Context = None, object: bpy.types.Object = None):
     if (layout is not None) and (modifier is not None):
         indented_layout = layout.row()
@@ -341,6 +314,57 @@ def UIPreset_ModifierSettings(layout: bpy.types.UILayout = None, modifier: bpy.t
         mod_layout.separator()
 
         match modifier.type:
+
+            case "ARRAY":
+
+                row = mod_layout.row()
+                row.prop(modifier, "fit_type", text="")
+                if (modifier.fit_type == "FIXED_COUNT"):
+                    row.prop(modifier, "count", text="")
+
+                if (modifier.fit_type == "FIT_LENGTH"):
+                    row.prop(modifier, "fit_length", text="")
+
+                if (modifier.fit_type == "FIT_CURVE"):
+                    row.prop(modifier, "curve", text="")
+
+                row = mod_layout.split(factor=0.33)
+                object_row = mod_layout.row()
+                offset_row = mod_layout.split()
+
+                row.prop(modifier, "use_relative_offset", toggle=True, emboss=True)
+                if (modifier.use_relative_offset):
+                    col = offset_row.column()
+                    col.label(text="Relative:")
+                    col.prop(modifier, "relative_offset_displace", text="", expand=True)
+
+                row.prop(modifier, "use_constant_offset", toggle=True, emboss=True)
+                if (modifier.use_constant_offset):
+                    col = offset_row.column()
+                    col.label(text="Constant:")
+                    col.prop(modifier, "constant_offset_displace", text="", expand=True)
+
+                row.prop(modifier, "use_object_offset", toggle=True, emboss=True)
+                if (modifier.use_object_offset):
+                    object_row.label(text="Object offset Target:")
+                    object_row.prop(modifier, "offset_object", text="")
+
+                mod_layout.separator()
+
+                row = mod_layout.split(factor=0.5)
+                col = row.column()
+                col.prop(modifier, "use_merge_vertices")
+                if (modifier.use_merge_vertices):
+                    col.prop(modifier, "merge_threshold", text="Distance")
+                    col.prop(modifier, "use_merge_vertices_cap")
+
+                col = row.column()
+                col.prop(modifier, "offset_u")
+                col.prop(modifier, "offset_v")
+                col.separator()
+                col.label(text="Caps:")
+                col.prop(modifier, "start_cap", text="Start")
+                col.prop(modifier, "end_cap", text="End")
 
             case "SUBSURF":
 

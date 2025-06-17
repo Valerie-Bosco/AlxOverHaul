@@ -29,16 +29,8 @@ class ALX_OT_Object_UnlockedQOrigin(bpy.types.Operator):
         return (context.area.type == "VIEW_3D") and (context.object is not None)
 
     def execute(self, context):
-        if (context.mode == "EDIT_MESH") and (context.edit_object.type == "MESH"):
-            self.ContextMesh = context.edit_object.data
-            if (self.ContextBMesh is None) or (not self.ContextBMesh.is_valid):
-                self.ContextBMesh = bmesh.from_edit_mesh(self.ContextMesh)
 
-            self.ContextBMesh.verts.ensure_lookup_table()
-            self.ContextBMesh.edges.ensure_lookup_table()
-            self.ContextBMesh.faces.ensure_lookup_table()
-
-        object_mesh: bpy.types.Mesh = context.object.data
+        # object_mesh: bpy.types.Mesh = context.object.data
 
         # average_normal = mathutils.Vector(AVERAGE_NormalFromVectorList([self.ContextBMesh.verts[vert_index].normal for vert_index in GET_selected_verts(self.ContextBMesh)]))
         # angle = average_normal.rotation_difference(mathutils.Vector((0, 0, 0)))
@@ -55,26 +47,35 @@ class ALX_OT_Object_UnlockedQOrigin(bpy.types.Operator):
         #     context.scene.cursor.location = (0.0, 0.0, 0.0)
         #     return {"FINISHED"}
 
-        # if (self.origin_set_mode == "ORIGIN_TO_SELECTION"):
-        #     if (self.ContextBMesh is not None):
-        #         object_mesh: bpy.types.Mesh = context.object.data
-        #         object_Wmatrix: mathutils.Matrix = context.object.matrix_world
+        if (self.origin_set_mode == "ORIGIN_TO_SELECTION"):
+            if (context.mode == "EDIT_MESH") and (context.edit_object.type == "MESH"):
+                self.ContextMesh = context.edit_object.data
+                if (self.ContextBMesh is None) or (not self.ContextBMesh.is_valid):
+                    self.ContextBMesh = bmesh.from_edit_mesh(self.ContextMesh)
 
-        #         selection = [vert.index for vert in self.ContextBMesh.verts if (vert.select == True)]
+                self.ContextBMesh.verts.ensure_lookup_table()
+                self.ContextBMesh.edges.ensure_lookup_table()
+                self.ContextBMesh.faces.ensure_lookup_table()
 
-        #         selection_vertex_Wco_list = list([self.ContextBMesh.verts[vert_index].co for vert_index in selection])
-        #         selection_average_Wco: mathutils.Vector = sum(selection_vertex_Wco_list, mathutils.Vector()) / len(selection_vertex_Wco_list)
+            if (self.ContextBMesh is not None):
+                object_mesh: bpy.types.Mesh = context.object.data
+                object_Wmatrix: mathutils.Matrix = context.object.matrix_world
 
-        #         WM_vertex_corrective_value = mathutils.Matrix.Translation(-selection_average_Wco)
+                selection = [vert.index for vert in self.ContextBMesh.verts if (vert.select == True)]
 
-        #         _mode = context.mode if (context.mode[0:4] != "EDIT") else "EDIT" if (context.mode[0:4] == "EDIT") else "OBJECT"
-        #         bpy.ops.object.mode_set(mode="OBJECT")
-        #         object_mesh.transform(WM_vertex_corrective_value)
-        #         bpy.ops.object.mode_set(mode=_mode)
+                selection_vertex_Wco_list = [self.ContextBMesh.verts[vertex_index].co for vertex_index in selection]
+                selection_vertex_normal_list = [self.ContextBMesh.verts[vertex_index].normal for vertex_index in selection]
 
-        #         object_Wmatrix.translation = object_Wmatrix @ selection_average_Wco
+                selection_average_Wco: mathutils.Vector = sum(selection_vertex_Wco_list, mathutils.Vector()) / len(selection_vertex_Wco_list)
 
-        # return {"FINISHED"}
+                WM_vertex_corrective_value = mathutils.Matrix.Translation(-selection_average_Wco)
+
+                _mode = context.mode if (context.mode[0:4] != "EDIT") else "EDIT" if (context.mode[0:4] == "EDIT") else "OBJECT"
+                bpy.ops.object.mode_set(mode="OBJECT")
+                object_mesh.transform(WM_vertex_corrective_value)
+                bpy.ops.object.mode_set(mode=_mode)
+
+                object_Wmatrix.translation = object_Wmatrix @ selection_average_Wco
 
         return {"FINISHED"}
 
