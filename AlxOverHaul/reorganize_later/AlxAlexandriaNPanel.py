@@ -47,6 +47,7 @@ class ALX_PT_UI_Addon_ToolShelf(bpy.types.Panel):
             layout = row.column()
 
             layout.label(text="Pose:")
+            layout.operator(Alx_rigging_tools.ALX_OT_SKELETON_AutoResolveEndBones.bl_idname, text="Resolve \"_end\" Bones")
             layout.operator(Alx_pose_tools.Alx_OT_Armature_Pose_ToggleConstraints.bl_idname, text="Toggle Pose Constraints")
             layout.operator(Alx_pose_tools.Alx_OT_Armature_MatchIKByMirroredName.bl_idname, text="Symmetrize IK")
 

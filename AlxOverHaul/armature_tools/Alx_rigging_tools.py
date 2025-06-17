@@ -241,6 +241,8 @@ class ALX_OT_SKELETON_AutoResolveEndBones(bpy.types.Operator):
     bl_label = "ALX Skeleton - Auto-Resolve \"_end\" bones"
     bl_idname = "alx.operator_skeleton_resolve_end_bones"
 
+    bl_description = "Automatically deletes redundant leaf bones: \n will delete: bone_name.L_end_end \n will NOT delete: bone_name.L_end, bone_name.L.end"
+
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod
@@ -257,7 +259,7 @@ class ALX_OT_SKELETON_AutoResolveEndBones(bpy.types.Operator):
 
             bpy.ops.object.mode_set(mode="EDIT")
             for bone in armature_object.edit_bones:
-                patterns = re.findall(r"(\_end)", bone.name, re.IGNORECASE)
+                patterns = re.findall(r"(\_end)|(\.end)", bone.name, re.IGNORECASE)
                 if (len(patterns) > 1):
                     armature_object.edit_bones.remove(bone)
 
