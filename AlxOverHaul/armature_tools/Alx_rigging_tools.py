@@ -260,7 +260,54 @@ class ALX_OT_SKELETON_AutoResolveEndBones(bpy.types.Operator):
             bpy.ops.object.mode_set(mode="EDIT")
             for bone in armature_object.edit_bones:
                 patterns = re.findall(r"(\_end)|(\.end)", bone.name, re.IGNORECASE)
-                if (len(patterns) > 1):
+                length = len(patterns)
+
+                if (length > 1):
+                    if (bone.parent is not None):
+                        parent_pattern = re.findall(r"(\_end)|(\.end)", bone.parent.name, re.IGNORECASE)
+                        parent_length = len(parent_pattern)
+
+                        if (parent_length == 1):
+                            armature_object.edit_bones.remove(bone)
+
+                elif (length == 1):
+                    bone.use_connect = True if bone.use_connect == False else bone.use_connect
+                    reversed_name = bone.name.lower()[::-1]
+                    index = reversed_name.find("dne.")
+
+                    if (index != -1):
+                        bone.name = f"{reversed_name[:index]}{reversed_name[index:index+3].lower()}_{reversed_name[index+4:]}"[::-1]
+
+            bpy.ops.object.mode_set(mode=_mode)
+
+        return {"FINISHED"}
+
+
+class ALX_OT_SKELETON_RemoveEndBones(bpy.types.Operator):
+
+    bl_label = "ALX Skeleton - Remove \"_end\" bones"
+    bl_idname = "alx.operator_skeleton_remove_end_bones"
+
+    bl_description = "Automatically deletes leaf bones"
+
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(self, context: bpy.types.Context):
+        return True
+
+    def execute(self, context: bpy.types.Context):
+        if (context.active_object is not None) and (context.active_object.data is not None) and (context.active_object.type == "ARMATURE"):
+            armature_object: bpy.types.Armature = context.active_object.data
+
+            bone: bpy.types.Bone
+
+            _mode = context.mode if (context.mode[0:4] != "EDIT") else "EDIT" if (context.mode[0:4] == "EDIT") else "OBJECT"
+
+            bpy.ops.object.mode_set(mode="EDIT")
+            for bone in armature_object.edit_bones:
+                patterns = re.findall(r"(\_end)|(\.end)", bone.name, re.IGNORECASE)
+                if (len(patterns) > 0):
                     armature_object.edit_bones.remove(bone)
 
             bpy.ops.object.mode_set(mode=_mode)
